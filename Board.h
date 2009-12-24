@@ -15,10 +15,10 @@
 #define KNIGHT	4
 #define PAWN	5
 
-#define UP		8
-#define DOWN	-8
-#define LEFT	-1
-#define RIGHT	1
+#define UP		8L
+#define DOWN	-8L
+#define LEFT	-1L
+#define RIGHT	1L
 
 typedef struct {
 	

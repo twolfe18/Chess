@@ -113,11 +113,37 @@ void set_play(Board *board, int color) {
 /* this function returns an array where the index
  * is the position of a pawn, and the resulting
  * long is all 0's except for where the pawn can move
-*/
+ *
+ * access the appropriate map with
+ * pawn_attacks[color*64 + sq]
+ */
 long* pawn_attacks() {
 	int rank, file;
-	long *r = (long*) malloc(64*sizeof(long));
+	long *r = (long*) malloc(2*64*sizeof(long));
 	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			r[WHITE*64 + rank*8 + file] = 0L;
+			r[BLACK*64 + rank*8 + file] = 0L;
+			
+			if(rank < 7) {
+				r[WHITE*64 + rank*8 + file] = SQUARE(rank*8+file) + UP;
+				if(rank < 6) {
+					r[WHITE*64 + rank*8 + file] |= SQUARE(rank*8+file) + 2L*UP;
+				}
+			}
+			
+			if(rank > 0) {
+				r[BLACK*64 + rank*8 + file] = SQUARE(rank*8+file) + UP;
+				if(rank > 1) {
+					r[BLACK*64 + rank*8 + file] |= SQUARE(rank*8+file) + 2L*UP;
+				}
+			}
+		}
+	}
+	
+	return r;
 }
 
 /*
