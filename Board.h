@@ -1,3 +1,7 @@
+/* Travis Wolfe
+ * December 2009
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,5 +40,5 @@ void set_play(Board *board, int color);
 int ply(Board *board);
 void set_ply(Board *board, int ply);
 
-
+long* pawn_attacks();
 

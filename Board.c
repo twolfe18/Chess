@@ -1,3 +1,7 @@
+/* Travis Wolfe
+ * December 2009
+ */
+
 #include "Board.h"
 
 #define SQUARE(X) (1L << (X))
@@ -104,6 +108,16 @@ int to_play(Board *board) {
 void set_play(Board *board, int color) {
 	int offset = sizeof(int) - 1;
 	board->ply_and_play = color << offset;
+}
+
+/* this function returns an array where the index
+ * is the position of a pawn, and the resulting
+ * long is all 0's except for where the pawn can move
+*/
+long* pawn_attacks() {
+	int rank, file;
+	long *r = (long*) malloc(64*sizeof(long));
+	
 }
 
 /*

@@ -1,3 +1,6 @@
+/* Travis Wolfe
+ * December 2009
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
