@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "Move.h"
 
 #define WHITE	0
 #define BLACK	1
@@ -15,10 +16,10 @@
 #define KNIGHT	4
 #define PAWN	5
 
-#define UP		8L
-#define DOWN	-8L
-#define LEFT	-1L
-#define RIGHT	1L
+#define UP		8
+#define DOWN	-8
+#define LEFT	-1
+#define RIGHT	1
 
 typedef struct {
 	
@@ -40,5 +41,17 @@ void set_play(Board *board, int color);
 int ply(Board *board);
 void set_ply(Board *board, int ply);
 
+/* this function returns an array where the index
+ * is based on the position of a pawn, and the resulting
+ * long is all 0's except for where the pawn can move
+ *
+ * access the appropriate map with
+ * pawn_attacks[color*64 + sq]
+ */
 long* pawn_attacks();
+
+/* this function returns an array of possible moves
+ * the number of moves returned will be stored in num_moves
+ */
+Move* get_moves(Board *board, int *num_moves);
 

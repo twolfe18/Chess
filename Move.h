@@ -3,13 +3,12 @@
  */
 
 #include <stdlib.h>
-#include "Board.h"
 
 /* Move needs to store from, to, capture type, promote type
  * should have a bunch of methods associted with it
  */
 typedef struct {
-	
+	int idkfornow;
 } Move;
 
 int moving_type();

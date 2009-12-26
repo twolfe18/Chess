@@ -3,6 +3,7 @@
  */
 
 #include "Board.h"
+#include "Move.h"
 
 #define SQUARE(X) (1L << (X))
 
@@ -110,13 +111,6 @@ void set_play(Board *board, int color) {
 	board->ply_and_play = color << offset;
 }
 
-/* this function returns an array where the index
- * is the position of a pawn, and the resulting
- * long is all 0's except for where the pawn can move
- *
- * access the appropriate map with
- * pawn_attacks[color*64 + sq]
- */
 long* pawn_attacks() {
 	int rank, file;
 	long *r = (long*) malloc(2*64*sizeof(long));
@@ -128,22 +122,26 @@ long* pawn_attacks() {
 			r[BLACK*64 + rank*8 + file] = 0L;
 			
 			if(rank < 7) {
-				r[WHITE*64 + rank*8 + file] = SQUARE(rank*8+file) + UP;
+				r[WHITE*64 + rank*8 + file] = SQUARE(rank*8+file + UP);
 				if(rank < 6) {
-					r[WHITE*64 + rank*8 + file] |= SQUARE(rank*8+file) + 2L*UP;
+					r[WHITE*64 + rank*8 + file] |= SQUARE(rank*8+file + 2*UP);
 				}
 			}
 			
 			if(rank > 0) {
-				r[BLACK*64 + rank*8 + file] = SQUARE(rank*8+file) + UP;
+				r[BLACK*64 + rank*8 + file] = SQUARE(rank*8+file + DOWN);
 				if(rank > 1) {
-					r[BLACK*64 + rank*8 + file] |= SQUARE(rank*8+file) + 2L*UP;
+					r[BLACK*64 + rank*8 + file] |= SQUARE(rank*8+file + 2*DOWN);
 				}
 			}
 		}
 	}
-	
 	return r;
+}
+
+Move* get_moves(Board *board, int *num_moves) {
+	
+	return NULL;
 }
 
 /*
