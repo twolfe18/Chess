@@ -31,7 +31,7 @@ int test_to_play(Board *board) {
 		return FAIL;
 	}
 	
-	printf("[testing.to_play]\tpassed!\n");
+	printf("[testing.to_play]\tpassed\n");
 	return WIN;
 }
 
@@ -67,7 +67,7 @@ int test_ply(Board *board) {
 		return FAIL;
 	}
 	
-	printf("[testing.ply]\t\tpassed!\n");
+	printf("[testing.ply]\t\tpassed\n");
 	return WIN;
 }
 
@@ -128,6 +128,11 @@ void stupid_tests() {
 	}
 }
 
+int test_file_attacks() {
+	
+	return FAIL;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	stupid_tests();
@@ -136,15 +141,19 @@ int main(int argc, const char * argv[]) {
 	printf("[tests.main]\trunning tests....\n");
 	
 	Board board;
-	init(&board);
+	setup(&board);
 	printb(&board);
 	test_to_play(&board);
 	test_ply(&board);
 	
 	if(WIN == test_pawn_moves(&board))
-		printf("[tests.pawn_moves]\tpassed!\n");
-	else printf("[tests.pawn_moves]\tfailed!\n");
+		printf("[tests.pawn_moves]\tpassed\n");
+	else printf("[tests.pawn_moves]\tFAILED!\n");
 	
+	if(WIN == test_file_attacks())
+		printf("[tests.file_attacks]\tpassed\n");
+	else printf("[tests.file_attacks]\tFAILED!\n");
+		
 	dispose(&board);
 	
 	printf("[tests.main]\ttests complete\n");

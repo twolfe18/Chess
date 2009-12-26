@@ -33,8 +33,9 @@ typedef struct {
 	
 } Board;
 
+void initf(Board *board, char *fen);
 void printb(Board *board);
-void init(Board *board);
+void setup(Board *board);
 void dispose(Board *board);
 int to_play(Board *board);
 void set_play(Board *board, int color);
@@ -50,8 +51,12 @@ void set_ply(Board *board, int ply);
  */
 long* pawn_attacks();
 
+long* make_file_attacks();
+
 /* this function returns an array of possible moves
  * the number of moves returned will be stored in num_moves
  */
 Move* get_moves(Board *board, int *num_moves);
+
+
 

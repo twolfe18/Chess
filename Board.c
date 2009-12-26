@@ -6,6 +6,95 @@
 #include "Move.h"
 
 #define SQUARE(X) (1L << (X))
+#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0"
+
+void initf(Board *board, char *fen) {
+	int rank, file, i;
+	long sq;
+	char c;
+	
+	/* List of Things in FEN ========
+	 * pieces (white is in capitals)
+	 * color to play
+	 * castling ability
+	 * en pessant
+	 * halfmove clock
+	 * fullmove number
+	 * ============================== */
+	
+	/* set the pieces */
+	rank = 0, file = 0, i = 0;
+	c = 'x';
+	while(c != ' ') {
+		c = fen[i++];
+		sq = SQUARE(rank*8 + file);
+		switch(c) {
+			
+			case 'K':
+				board->positions[WHITE*6 + KING] |= sq; break;
+			case 'Q':
+				board->positions[WHITE*6 + QUEEN] |= sq; break;
+			case 'R':
+				board->positions[WHITE*6 + ROOK] |= sq; break;
+			case 'B':
+				board->positions[WHITE*6 + BISHOP] |= sq; break;
+			case 'N':
+				board->positions[WHITE*6 + KNIGHT] |= sq; break;
+			case 'P':
+				board->positions[WHITE*6 + PAWN] |= sq; break;
+			
+			case 'k':
+				board->positions[BLACK*6 + KING] |= sq; break;
+			case 'q':
+				board->positions[BLACK*6 + QUEEN] |= sq; break;
+			case 'r':
+				board->positions[BLACK*6 + ROOK] |= sq; break;
+			case 'b':
+				board->positions[BLACK*6 + BISHOP] |= sq; break;
+			case 'n':
+				board->positions[BLACK*6 + KNIGHT] |= sq; break;
+			case 'p':
+				board->positions[BLACK*6 + PAWN] |= sq; break;
+				
+			/* new rank */
+			case '/':
+				rank--;
+				file = -1;	/* will be incremented to 0 outside swtich */
+				break;
+			
+			/* its a number (advance by X files... he-he) */
+			default:
+				file += (c - 48);
+				file--;		/* to counter the normal increment */
+				break;
+		}
+		
+		file++;
+		if(file >= 8) {
+			file = 0;
+			rank--;
+		}
+	}
+	
+	/* set to color to play */
+	i++;
+	if(fen[i] == 'w' || fen[i] == 'W')
+		set_play(board, WHITE);
+	else set_play(board, BLACK);
+	
+	/* set castling ability */
+	/* TODO */
+	
+	/* set en pessant */
+	/* TODO */
+	
+	/* set the halfmove clock */
+	/* TODO */
+	
+	/* set fullmove number */
+	/* TODO */
+	
+}
 
 void printb(Board *board) {
 	long sq;
@@ -58,7 +147,7 @@ void printb(Board *board) {
 	printf("    A  B  C  D  E  F  G  H\n");
 }
 
-void init(Board *board) {
+void setup(Board *board) {
 	printf("[Board.init] initializing the board\n");
 	
 	set_play(board, WHITE);
@@ -97,7 +186,6 @@ void set_ply(Board *board, int ply) {
 	board->ply_and_play &= ~0xFFFF;
 	board->ply_and_play |= ply;
 }
-
 
 int to_play(Board *board) {
 	int offset = sizeof(int) - 1;
@@ -144,37 +232,43 @@ Move* get_moves(Board *board, int *num_moves) {
 	return NULL;
 }
 
-/*
-long* makeFileAttacks() {
+long* make_file_attacks() {
+	
 	int rank, file, i, j, k;
 	long* r = (long*) malloc(64*256*sizeof(long));
 	
-	for(int rank=0; rank<8; rank++) {
-		for(int file=0; file<8; file++) {
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
 			
 			k = file*8 + (8-rank);
 			
 			for(i=0; i<256; i++) {
-				r[k][i] = 0L;
+				r[k*64 + i] = 0L;
 				
-				// start from where you are, move up/down
+				/* start from where you are, move up/down */
 				j = rank;
 				
-				while(j >= 0) {
-					if(!is_zero(i, j)) break;
-					r[k][i] |= 1L<<j;
+				/* -funroll-loops will unroll this, but every other kind
+				 * of loop as well (which can decrease performance). for
+				 * best results, just unroll it yourself. don't do this
+				 * until you have tested, and you know it works though
+				 */
+				while(j >= 0 && ((i & (1<<j)) != 0)) {
+					r[k*64 + i] |= 1L<<j;
+					j--;
 				}
 				
 				j = rank;
 				
-				while(j < 8) {
-					if(!is_zero(i, j)) break;
-					r[k][i] |= 1L<<j;
+				/* same comment as above applies here */
+				while(j < 8 && ((i & (1<<j)) != 0)) {
+					r[k*64 + i] |= 1L<<j;
+					j++;
 				}
 			}
 		}
 	}
 	return r;
 }
-*/
+
 
