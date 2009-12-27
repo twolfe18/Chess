@@ -25,6 +25,12 @@ typedef struct {
 	
 	/* a length 12 array of longs
 	 each long is 64 bits for the board */
+	/* may want to change this to
+	   volatile long positions[12] so that
+	   i dont have to allocate it and so that
+	   i can be sure that the entire array is
+	   volatile rather than just the pointer to
+	   the first position in the array */
 	volatile long *positions;
 	
 	/* highest order bit is either WHITE or
