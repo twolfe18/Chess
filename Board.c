@@ -6,6 +6,8 @@
 #include "Move.h"
 
 #define SQUARE(X) (1L << (X))
+#define IS_ZERO(BITS, INDEX) ((BITS & 1<<INDEX) == 0)
+
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0"
 
 void initf(Board *board, char *fen) {
@@ -131,7 +133,7 @@ void printb(Board *board) {
 			else if(board->positions[BLACK*6+PAWN] & sq)
 				b[row][col] = 'p';
 			
-			else b[row][col] = ' ';
+			else b[row][col] = '-';
 		}
 	}
 	printf("    A  B  C  D  E  F  G  H\n");
@@ -174,7 +176,7 @@ void setup(Board *board) {
 }
 
 void dispose(Board *board) {
-	printf("[Board.dispose] getting rid of the board\n");
+	printf("[Board.dispose]\t\tgetting rid of the board\n");
 	/* free(board->positions); */
 }
 
@@ -240,31 +242,26 @@ long* make_file_attacks() {
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
 			
-			k = file*8 + (8-rank);
-			
+			k = rank*8 + file;
 			for(i=0; i<256; i++) {
+				
 				r[k*64 + i] = 0L;
 				
-				/* start from where you are, move up/down */
-				j = rank;
-				
-				/* -funroll-loops will unroll this, but every other kind
-				 * of loop as well (which can decrease performance). for
-				 * best results, just unroll it yourself. don't do this
-				 * until you have tested, and you know it works though
-				 */
-				while(j >= 0 && ((i & (1<<j)) != 0)) {
-					r[k*64 + i] |= 1L<<j;
+				j = rank-1;
+				while(j >= 0 && (  (i & (1<<j)) == 0  )) {
+					r[k*64 + i] |= SQUARE(j*8 + file);
 					j--;
 				}
+				if(j >= 0)
+					r[k*64 + i] |= SQUARE(j*8 + file);
 				
-				j = rank;
-				
-				/* same comment as above applies here */
-				while(j < 8 && ((i & (1<<j)) != 0)) {
-					r[k*64 + i] |= 1L<<j;
+				j = rank+1;
+				while(j < 8 && (  (i & (1<<j)) == 0  )) {
+					r[k*64 + i] |= SQUARE(j*8 + file);
 					j++;
 				}
+				if(j < 8)
+					r[k*64 + i] |= SQUARE(j*8 + file);
 			}
 		}
 	}

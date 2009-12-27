@@ -129,8 +129,66 @@ void stupid_tests() {
 }
 
 int test_file_attacks() {
+	long mask, expected;
+	int status, sq, file;
+	long *fattacks = make_file_attacks();
+	status = WIN;
 	
-	return FAIL;
+	/* lets assume we queen at D1 (3) and
+	 * pieces at D3 (19) and D5 (35).
+	 * this should leave a move to D2 (11)
+	 * and D3 (19).
+	 */
+	sq = 3;
+	expected = SQUARE(sq+8) | SQUARE(sq+8*2);
+	file = (1<<2) | (1<<4) | 1;
+	mask = fattacks[sq*64 + file];
+	if(mask != expected) {
+		printf("[tests.file_attacks] (1) expected %d, but got %d, file = %d\n", (int) expected, (int) mask, file);
+		status = FAIL;
+	}
+	
+	/* lets assume we rook at H3 (23) and
+	 * pieces at H2 (15) and H4 (31).
+	 * this should leave moves to H2 (15)
+	 * and H4 (31)
+	 */
+	sq = 23;
+	expected = SQUARE(sq-8) | SQUARE(sq+8);
+	file = (1<<1) | (1<<2) | (1<<3);
+	mask = fattacks[sq*64 + file];
+	if(mask != expected) {
+		printf("[tests.file_attacks] (2) expected %d, but got %d, file = %d\n", (int) expected, (int) mask, file);
+		status = FAIL;
+	}
+	
+	/* lets assume we rook at A8 (56) and
+	 * a piece at A7 (48).
+	 * this should leave a to A7 (48)
+	 */
+	sq = 56;
+	expected = SQUARE(sq-8);
+	file = (1<<7) | (1<<6);
+	mask = fattacks[sq*64 + file];
+	if(mask != expected) {
+		printf("[tests.file_attacks] (3) expected %i, but got %i, file = %d\n", (int) expected, (int) mask, file);
+		status = FAIL;
+/*
+		for(sq=0; sq<64; sq++) {
+			if(sq%8==0 && sq > 0) printf("\n");
+			printf("%d ", (int) ((mask>>(63-sq))&1));
+		}
+		printf("\n===================================\n");
+		for(sq=0; sq<64; sq++) {
+			if(sq%8==0 && sq > 0) printf("\n");
+			printf("%d ", (int) ((expected>>(63-sq))&1));
+		}
+		printf("\n");
+*/
+	}
+	
+	free(fattacks);
+	return status;
 }
 
 int main(int argc, const char * argv[]) {
@@ -156,6 +214,6 @@ int main(int argc, const char * argv[]) {
 		
 	dispose(&board);
 	
-	printf("[tests.main]\ttests complete\n");
+	printf("[tests.main]\t\ttests complete\n");
 	return EXIT_SUCCESS;
 }

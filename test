@@ -2,7 +2,7 @@
 clear
 echo "COMPILING ===========================================================\n"
 rm testing
-gcc -ansi -Wall -03 board.h board.c tests.c -o testing
+gcc -ansi -Wall board.h board.c tests.c -o testing
 
 echo "\nRUNNING =============================================================\n"
 ./testing

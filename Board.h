@@ -23,19 +23,21 @@
 
 typedef struct {
 	
+	/* Note about "register"
+	 * I tried some simple tests using
+	 * register, it does not seem to
+	 * help (it actually hurts a lot)
+	 * Try adding this later if you
+	 * think it can help.
+	 */
+	
 	/* a length 12 array of longs
 	 each long is 64 bits for the board */
-	/* may want to change this to
-	   volatile long positions[12] so that
-	   i dont have to allocate it and so that
-	   i can be sure that the entire array is
-	   volatile rather than just the pointer to
-	   the first position in the array */
-	volatile long *positions;
+	long positions[12];
 	
 	/* highest order bit is either WHITE or
 	 BLACK, lowest 2 bytes are the ply */
-	volatile int ply_and_play;
+	int ply_and_play;
 	
 } Board;
 
@@ -57,6 +59,14 @@ void set_ply(Board *board, int ply);
  */
 long* pawn_attacks();
 
+/* this function returns an array of masks that have
+ * to do with file attacks. you get the correct mask
+ * by giving it:
+ * array[sq*64 + file_occupancy]
+ * where file occupancy is an int where there are 1's
+ * present only in the ranks which are filled by
+ * either team in the file of sq.
+ */
 long* make_file_attacks();
 
 /* this function returns an array of possible moves
