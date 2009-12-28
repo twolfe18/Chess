@@ -236,6 +236,13 @@ Move* get_moves(Board *board, int *num_moves) {
 
 long* make_file_attacks() {
 	
+	/* note: the size of this lookup table can
+	 * be cut by 75% by removing the 2 bits that
+	 * signify the ends of the board. you can always
+	 * move to them whether there is a piece there
+	 * or not.
+	 */
+	
 	int rank, file, i, j, k;
 	long* r = (long*) malloc(64*256*sizeof(long));
 	
@@ -245,23 +252,64 @@ long* make_file_attacks() {
 			k = rank*8 + file;
 			for(i=0; i<256; i++) {
 				
-				r[k*64 + i] = 0L;
+				r[k*256 + i] = 0L;
 				
 				j = rank-1;
 				while(j >= 0 && (  (i & (1<<j)) == 0  )) {
-					r[k*64 + i] |= SQUARE(j*8 + file);
+					r[k*256 + i] |= SQUARE(j*8 + file);
 					j--;
 				}
 				if(j >= 0)
-					r[k*64 + i] |= SQUARE(j*8 + file);
+					r[k*256 + i] |= SQUARE(j*8 + file);
 				
 				j = rank+1;
 				while(j < 8 && (  (i & (1<<j)) == 0  )) {
-					r[k*64 + i] |= SQUARE(j*8 + file);
+					r[k*256 + i] |= SQUARE(j*8 + file);
 					j++;
 				}
 				if(j < 8)
-					r[k*64 + i] |= SQUARE(j*8 + file);
+					r[k*256 + i] |= SQUARE(j*8 + file);
+			}
+		}
+	}
+	return r;
+}
+
+long* make_rank_attacks() {
+	
+	/* note: the size of this lookup table can
+	 * be cut by 75% by removing the 2 bits that
+	 * signify the ends of the board. you can always
+	 * move to them whether there is a piece there
+	 * or not.
+	 */
+	
+	int rank, file, i, j, k;
+	long* r = (long*) malloc(64*256*sizeof(long));
+	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			k = rank*8 + file;
+			for(i=0; i<256; i++) {
+				
+				r[k*256 + i] = 0L;
+				
+				j = file-1;
+				while(j >= 0 && (  (i & (1<<j)) == 0  )) {
+					r[k*256 + i] |= SQUARE(rank*8 + j);
+					j--;
+				}
+				if(j >= 0)
+					r[k*256 + i] |= SQUARE(rank*8 + j);
+				
+				j = file+1;
+				while(j < 8 && (  (i & (1<<j)) == 0  )) {
+					r[k*256 + i] |= SQUARE(rank*8 + j);
+					j++;
+				}
+				if(j < 8)
+					r[k*256 + i] |= SQUARE(rank*8 + j);
 			}
 		}
 	}

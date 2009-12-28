@@ -142,7 +142,7 @@ int test_file_attacks() {
 	sq = 3;
 	expected = SQUARE(sq+8) | SQUARE(sq+8*2);
 	file = (1<<2) | (1<<4) | 1;
-	mask = fattacks[sq*64 + file];
+	mask = fattacks[sq*256 + file];
 	if(mask != expected) {
 		printf("[tests.file_attacks] (1) expected %d, but got %d, file = %d\n", (int) expected, (int) mask, file);
 		status = FAIL;
@@ -156,7 +156,7 @@ int test_file_attacks() {
 	sq = 23;
 	expected = SQUARE(sq-8) | SQUARE(sq+8);
 	file = (1<<1) | (1<<2) | (1<<3);
-	mask = fattacks[sq*64 + file];
+	mask = fattacks[sq*256 + file];
 	if(mask != expected) {
 		printf("[tests.file_attacks] (2) expected %d, but got %d, file = %d\n", (int) expected, (int) mask, file);
 		status = FAIL;
@@ -169,26 +169,19 @@ int test_file_attacks() {
 	sq = 56;
 	expected = SQUARE(sq-8);
 	file = (1<<7) | (1<<6);
-	mask = fattacks[sq*64 + file];
+	mask = fattacks[sq*256 + file];
 	if(mask != expected) {
 		printf("[tests.file_attacks] (3) expected %i, but got %i, file = %d\n", (int) expected, (int) mask, file);
 		status = FAIL;
-/*
-		for(sq=0; sq<64; sq++) {
-			if(sq%8==0 && sq > 0) printf("\n");
-			printf("%d ", (int) ((mask>>(63-sq))&1));
-		}
-		printf("\n===================================\n");
-		for(sq=0; sq<64; sq++) {
-			if(sq%8==0 && sq > 0) printf("\n");
-			printf("%d ", (int) ((expected>>(63-sq))&1));
-		}
-		printf("\n");
-*/
 	}
 	
 	free(fattacks);
 	return status;
+}
+
+int test_rank_attacks() {
+	/* TODO */
+	return FAIL;
 }
 
 int main(int argc, const char * argv[]) {
@@ -212,6 +205,10 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.file_attacks]\tpassed\n");
 	else printf("[tests.file_attacks]\tFAILED!\n");
 		
+	if(WIN == test_rank_attacks())
+		printf("[tests.file_attacks]\tpassed\n");
+	else printf("[tests.file_attacks]\tFAILED!\n");
+	
 	dispose(&board);
 	
 	printf("[tests.main]\t\ttests complete\n");

@@ -21,6 +21,9 @@
 #define LEFT	-1
 #define RIGHT	1
 
+/* this is the struct that contains all
+ * information needed to specify a board
+ */
 typedef struct {
 	
 	/* Note about "register"
@@ -41,13 +44,30 @@ typedef struct {
 	
 } Board;
 
+/* initialize a board from a FEN notation string */
 void initf(Board *board, char *fen);
+
+/* print the board */
 void printb(Board *board);
+
+/* initializes the board to a typical starting arrangement */
 void setup(Board *board);
+
+/* gets rid of any dynamically allocated memory
+ * (currently doesn't do anything)
+ */
 void dispose(Board *board);
+
+/* returns either WHITE or BLACK, player to play */
 int to_play(Board *board);
+
+/* set the turn of who is to play */
 void set_play(Board *board, int color);
+
+/* returns the ply of the game (note: this is not the fullmove number) */
 int ply(Board *board);
+
+/* sets the ply of the game (note: this is not the fullmove number) */
 void set_ply(Board *board, int ply);
 
 /* this function returns an array where the index
@@ -62,12 +82,19 @@ long* pawn_attacks();
 /* this function returns an array of masks that have
  * to do with file attacks. you get the correct mask
  * by giving it:
- * array[sq*64 + file_occupancy]
+ * array[sq*256 + file_occupancy]
  * where file occupancy is an int where there are 1's
  * present only in the ranks which are filled by
  * either team in the file of sq.
  */
 long* make_file_attacks();
+
+/* very similar to make_file_attacks, only
+ * you give it an index based on the rank
+ *
+ * array[sq*256 + rank_occupancy]
+ */
+long* make_rank_attacks();
 
 /* this function returns an array of possible moves
  * the number of moves returned will be stored in num_moves
