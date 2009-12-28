@@ -259,8 +259,8 @@ int main(int argc, const char * argv[]) {
 	else printf("[tests.file_attacks]\tFAILED!\n");
 		
 	if(WIN == test_rank_attacks())
-		printf("[tests.file_attacks]\tpassed\n");
-	else printf("[tests.file_attacks]\tFAILED!\n");
+		printf("[tests.rank_attacks]\tpassed\n");
+	else printf("[tests.rank_attacks]\tFAILED!\n");
 	
 	if(WIN == test_initf())
 		printf("[tests.initf]\t\tpassed\n");
