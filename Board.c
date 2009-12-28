@@ -25,7 +25,7 @@ void initf(Board *board, char *fen) {
 	 * ================================== */
 	
 	/* set the pieces */
-	rank = 0, file = 0, i = 0;
+	rank = 7, file = 0, i = 0;
 	c = 'x';
 	while(c != ' ') {
 		
@@ -145,7 +145,7 @@ void initf(Board *board, char *fen) {
 		}
 		
 		file++;
-		if(file >= 8) {
+		if(file > 7) {
 			file = 0;
 			rank--;
 		}
@@ -173,77 +173,60 @@ void initf(Board *board, char *fen) {
 
 void printb(Board *board) {
 	long sq;
-	int row, col;
+	int rank, file;
 	char b[8][8];
-	for(row=0; row<8; row++) {
-		for(col=0; col<8; col++) {
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
 			
-			sq = SQUARE(col*8+row);
+			sq = SQUARE(rank*8+file);
 			
 			if(board->rank_positions[WHITE*6+QUEEN] & sq)
-				b[row][col] = 'Q';
+				b[rank][file] = 'Q';
 			else if(board->rank_positions[WHITE*6+KING] & sq)
-				b[row][col] = 'K';
+				b[rank][file] = 'K';
 			else if(board->rank_positions[WHITE*6+ROOK] & sq)
-				b[row][col] = 'R';
+				b[rank][file] = 'R';
 			else if(board->rank_positions[WHITE*6+BISHOP] & sq)
-				b[row][col] = 'B';
+				b[rank][file] = 'B';
 			else if(board->rank_positions[WHITE*6+KNIGHT] & sq)
-				b[row][col] = 'N';
+				b[rank][file] = 'N';
 			else if(board->rank_positions[WHITE*6+PAWN] & sq)
-				b[row][col] = 'P';
+				b[rank][file] = 'P';
 			
 			else if(board->rank_positions[BLACK*6+QUEEN] & sq)
-				b[row][col] = 'q';
+				b[rank][file] = 'q';
 			else if(board->rank_positions[BLACK*6+KING] & sq)
-				b[row][col] = 'k';
+				b[rank][file] = 'k';
 			else if(board->rank_positions[BLACK*6+ROOK] & sq)
-				b[row][col] = 'r';
+				b[rank][file] = 'r';
 			else if(board->rank_positions[BLACK*6+BISHOP] & sq)
-				b[row][col] = 'b';
+				b[rank][file] = 'b';
 			else if(board->rank_positions[BLACK*6+KNIGHT] & sq)
-				b[row][col] = 'n';
+				b[rank][file] = 'n';
 			else if(board->rank_positions[BLACK*6+PAWN] & sq)
-				b[row][col] = 'p';
+				b[rank][file] = 'p';
 			
-			else b[row][col] = '-';
+			else b[rank][file] = '-';
 		}
 	}
 	printf("    A  B  C  D  E  F  G  H\n");
 	printf("   ------------------------\n");
-	for(col=7; col>=0; col--) {
-		printf("%d |", col+1);
-		for(row=0; row<8; row++) {
-			printf(" %c ", b[row][col]);
+	for(rank=7; rank>=0; rank--) {
+		printf("%d |", rank+1);
+		for(file=0; file<8; file++) {
+			printf(" %c ", b[rank][file]);
 		}
-		printf("| %d\n", col+1);
+		printf("| %d\n", rank+1);
 	}
 	printf("   ------------------------\n");
 	printf("    A  B  C  D  E  F  G  H\n");
 }
 
 void setup(Board *board) {
-	printf("[Board.init] initializing the board\n");
-	
+	printf("[Board.init]\tinitializing the board\n");
 	set_play(board, WHITE);
-	
-	board->rank_positions[WHITE*6+KING] = SQUARE(4);
-	board->rank_positions[WHITE*6+QUEEN] = SQUARE(3);
-	board->rank_positions[WHITE*6+ROOK] = SQUARE(0) | SQUARE(7);
-	board->rank_positions[WHITE*6+BISHOP] = SQUARE(2) | SQUARE(5);
-	board->rank_positions[WHITE*6+KNIGHT] = SQUARE(1) | SQUARE(6);
-	board->rank_positions[WHITE*6+PAWN] = SQUARE(8) | SQUARE(9) | SQUARE(10) |
-									SQUARE(11) | SQUARE(12) | SQUARE(13) |
-									SQUARE(14) | SQUARE(15);
-	
-	board->rank_positions[BLACK*6+KING] = SQUARE(60);
-	board->rank_positions[BLACK*6+QUEEN] = SQUARE(59);
-	board->rank_positions[BLACK*6+ROOK] = SQUARE(56) | SQUARE(63);
-	board->rank_positions[BLACK*6+BISHOP] = SQUARE(58) | SQUARE(61);
-	board->rank_positions[BLACK*6+KNIGHT] = SQUARE(57) | SQUARE(62);
-	board->rank_positions[BLACK*6+PAWN] = SQUARE(48) | SQUARE(49) | SQUARE(50) |
-									SQUARE(51) | SQUARE(52) | SQUARE(53) |
-									SQUARE(54) | SQUARE(55);
+	set_ply(board, 0);
+	initf(board, INITIAL_FEN);
 }
 
 void dispose(Board *board) {
