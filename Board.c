@@ -14,14 +14,14 @@ void initf(Board *board, char *fen) {
 	long sq;
 	char c;
 	
-	/* List of Things in FEN ========
+	/* === List of Things in FEN ========
 	 * pieces (white is in capitals)
 	 * color to play
 	 * castling ability
 	 * en pessant
 	 * halfmove clock
 	 * fullmove number
-	 * ============================== */
+	 * ================================== */
 	
 	/* set the pieces */
 	rank = 0, file = 0, i = 0;
