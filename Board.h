@@ -136,4 +136,4 @@ long* make_rank_attacks();
 Move* get_moves(Board *board, int *num_moves);
 
 
-
+/* hello world! */
