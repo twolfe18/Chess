@@ -24,9 +24,18 @@ void initf(Board *board, char *fen) {
 	 * fullmove number
 	 * ================================== */
 	
+	/* set the intial maps to 0 */
+	for(i=0; i<12; i++) {
+		board->rank_positions[i] = 0L;
+		board->file_positions[i] = 0L;
+		board->tl_br_positions[i] = 0L;
+		board->bl_tr_positions[i] = 0L;
+	}
+	
 	/* set the pieces */
 	rank = 7, file = 0, i = 0;
 	c = 'x';
+	
 	while(c != ' ') {
 		
 		c = fen[i++];
@@ -145,10 +154,6 @@ void initf(Board *board, char *fen) {
 		}
 		
 		file++;
-		if(file > 7) {
-			file = 0;
-			rank--;
-		}
 	}
 	
 	/* set to color to play */
