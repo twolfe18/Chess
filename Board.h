@@ -35,8 +35,32 @@ typedef struct {
 	 */
 	
 	/* a length 12 array of longs
-	 each long is 64 bits for the board */
-	long positions[12];
+	 * each long is 64 bits for the board
+	 * 
+	 * board positions are indexed by rank
+	 * from A1 (0), A2 (1), ..., to H8 (63)
+	 */
+	long rank_positions[12];
+	
+	/* same as above but positions are
+	 * indexed by file from A1 (0),
+	 * B1 (2), ..., H8 (63)
+	 */
+	long file_positions[12];
+	
+	/* this array is a diagnolized board
+	 * where the numbering goes like:
+	 * A8 (0), A7 (1), B8 (2), A6 (3),
+	 * ..., B1 (63)
+	 */
+	long tl_br_positions[12];
+
+	/* this array is a diagnolized board
+	 * where the numbering goes like:
+	 * A1 (0), A2 (1), B1 (2), A3 (3),
+	 * ..., B8 (63)
+	 */
+	long bl_tr_positions[12];
 	
 	/* highest order bit is either WHITE or
 	 BLACK, lowest 2 bytes are the ply */
