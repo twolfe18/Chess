@@ -180,8 +180,53 @@ int test_file_attacks() {
 }
 
 int test_rank_attacks() {
-	/* TODO */
-	return FAIL;
+	long mask, expected;
+	int status, sq, rank;
+	long *rattacks = make_rank_attacks();
+	status = WIN;
+	
+	/* lets assume we queen at D1 (3) and
+	 * pieces at E1 (4) and H1 (7).
+	 * this should leave moves from A1 (0)
+	 * through E1 (4).
+	 */
+	sq = 3;
+	expected = SQUARE(sq+1) | SQUARE(sq-1) | SQUARE(sq-2) | SQUARE(sq-3);
+	rank = (1<<3) | (1<<4) | (1<<7);
+	mask = rattacks[sq*256 + rank];
+	if(mask != expected) {
+		printf("[tests.rank_attacks] (1) expected %d, but got %d, rank = %d\n", (int) expected, (int) mask, rank);
+		status = FAIL;
+	}
+	
+	/* lets assume we rook at H8 (63) and
+	 * a piece at G8 (62)
+	 * this should leave on move to G8 (62)
+	 */
+	sq = 63;
+	expected = SQUARE(sq-1);
+	rank = (1<<6) | (1<<7);
+	mask = rattacks[sq*256 + rank];
+	if(mask != expected) {
+		printf("[tests.rank_attacks] (1) expected %d, but got %d, rank = %d\n", (int) expected, (int) mask, rank);
+		status = FAIL;
+	}
+	
+	/* lets assume we rook at C5 (42) and
+	 * no other pieces in that rank
+	 * this should give moves to A5 (40) through
+	 * H5 (47) except C5
+	 */
+	sq = 42;
+	expected = SQUARE(sq-2) | SQUARE(sq-1) | SQUARE(sq+1) | SQUARE(sq+2) | SQUARE(sq+3) | SQUARE(sq+4) | SQUARE(sq+5);
+	rank = 0;
+	mask = rattacks[sq*256 + rank];
+	if(mask != expected) {
+		printf("[tests.rank_attacks] (1) expected %d, but got %d, rank = %d\n", (int) expected, (int) mask, rank);
+		status = FAIL;
+	}
+	
+	return status;
 }
 
 int main(int argc, const char * argv[]) {

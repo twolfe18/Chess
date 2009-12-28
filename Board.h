@@ -82,10 +82,16 @@ long* pawn_attacks();
 /* this function returns an array of masks that have
  * to do with file attacks. you get the correct mask
  * by giving it:
+ *
  * array[sq*256 + file_occupancy]
+ * 
  * where file occupancy is an int where there are 1's
  * present only in the ranks which are filled by
  * either team in the file of sq.
+ *
+ * you measure file_occupancy from white's perspective,
+ * so A4 would register as a 1 in the 3rd place, and
+ * C5 would register in the 4th place
  */
 long* make_file_attacks();
 
@@ -93,6 +99,10 @@ long* make_file_attacks();
  * you give it an index based on the rank
  *
  * array[sq*256 + rank_occupancy]
+ *
+ * rank is measured from the left
+ * a piece at A4 would register as a one in the
+ * 0th place, C5 would register in the 2nd place
  */
 long* make_rank_attacks();
 
