@@ -229,6 +229,14 @@ int test_rank_attacks() {
 	return status;
 }
 
+int test_initf() {
+	
+	/* TODO: test tl_br position maps */
+	/* TODO: test bl_tr position maps */
+	
+	return FAIL;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	stupid_tests();
@@ -253,6 +261,10 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_rank_attacks())
 		printf("[tests.file_attacks]\tpassed\n");
 	else printf("[tests.file_attacks]\tFAILED!\n");
+	
+	if(WIN == test_initf())
+		printf("[tests.initf]\t\tpassed\n");
+	else printf("[tests.initf]\t\tFAILED!\n");
 	
 	dispose(&board);
 	
