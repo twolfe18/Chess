@@ -308,6 +308,9 @@ long* make_file_attacks() {
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
 			
+			/* either this or make_rank_attacks needs
+			 * to index differently
+			 */
 			k = rank*8 + file;
 			for(i=0; i<256; i++) {
 				
@@ -349,6 +352,9 @@ long* make_rank_attacks() {
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
 			
+			/* either this or make_file_attacks needs
+			 * to index differently
+			 */
 			k = rank*8 + file;
 			for(i=0; i<256; i++) {
 				
@@ -374,5 +380,68 @@ long* make_rank_attacks() {
 	}
 	return r;
 }
+
+long* make_tl_br_attacks() {
+	
+	int rank, file, width, i, j, sq;
+	long *r = (long*) malloc(64*256*sizeof(long));
+	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			/* for this rank, file the length of
+			 * the diagnol is:
+			 */
+			if(rank >= file) {
+				width = (7-rank) + file + 1;
+			}
+			else {
+				width = rank + (7-file) + 1;
+			}
+			
+			/* should i keep this in standard form or diagnol */
+			/* i think it should be in diagnol */
+			/* revisit this issue in rank/file attacks */
+			sq = width*(width-1) + file;
+			
+			if(width < 1 || width > 8)
+				printf("[board.tl_br_attacks]\twidth = %d", width);
+			
+			/* make a set of bit masks for the
+			 * 2^width configurations
+			 */
+			for(i = (1<<width) - 1; i>=0; i--) {
+				
+				r[sq*256 + i] = 0L;
+				
+				/* in configuration i, sq is at place file */
+				j = file - 1;
+				while(j >= 0 && ( (i & (1<<j)) == 0) ) {
+					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					j--;
+				}
+				if(j >= 0) {
+					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+				}
+				
+				j = file + 1;
+				while(j < width && ( (i & (1<<j)) == 0) ) {
+					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					j++;
+				}
+				if(j < width) {
+					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+				}			
+			}
+			
+		}
+	}
+	return r;
+}
+
+
+
+
+
 
 

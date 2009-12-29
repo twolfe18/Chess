@@ -135,3 +135,10 @@ long* make_rank_attacks();
  */
 Move* get_moves(Board *board, int *num_moves);
 
+/* makes an array for top-left to bottom-right sliding
+ * pieces. squares are indexed as defined in Board.h
+ *
+ * array[sq*256 + diagnol_occupancy]
+ */
+long* make_tl_br_attacks();
+
