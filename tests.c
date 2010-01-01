@@ -244,6 +244,13 @@ int test_tl_br_attacks() {
 	return FAIL;
 }
 
+int test_knight_attacks() {
+	
+	/* TODO */
+	
+	return FAIL;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	stupid_tests();
@@ -276,6 +283,10 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_tl_br_attacks())
 		printf("[tests.tl_br_attacks]\tpassed\n");
 	else printf("[tests.tl_br_attacks]\tFAILED!\n");
+	
+	if(WIN == test_knight_attacks())
+		printf("[tests.knight_attacks]\tpassed\n");
+	else printf("[tests.knight_attacks]\tFAILED!\n");
 	
 	dispose(&board);
 	

@@ -402,6 +402,15 @@ long* make_tl_br_attacks() {
 			/* should i keep this in standard form or diagnol */
 			/* i think it should be in diagnol */
 			/* revisit this issue in rank/file attacks */
+			
+			/* for rank/file attacks, each square has the same
+			 * number and width of masks
+			 * for diagnol attacks, each square has varying
+			 * size masks associated with it
+			 * so the definition of square for the diagnol
+			 * arrays matters, but for the rank/files it
+			 * doesn't
+			 */
 			sq = width*(width-1) + file;
 			
 			if(width < 1 || width > 8)
@@ -412,6 +421,9 @@ long* make_tl_br_attacks() {
 			 */
 			for(i = (1<<width) - 1; i>=0; i--) {
 				
+				/* this addressing system will work,
+				 * but wont be space efficient
+				 */
 				r[sq*256 + i] = 0L;
 				
 				/* in configuration i, sq is at place file */
@@ -439,7 +451,61 @@ long* make_tl_br_attacks() {
 	return r;
 }
 
-
+long* make_knight_attacks() {
+	
+	int rank, file, sq;
+	long *r = (long*) malloc(64*sizeof(long));
+	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			sq = rank*8 + file;
+			
+			r[sq] = 0L;
+			
+			/* up, right */
+			if(rank < 6 && file < 7) {
+				r[sq] |= SQUARE(sq + 2*UP + RIGHT);
+			}
+			
+			/* up, left */
+			if(rank < 6 && file > 0) {
+				r[sq] |= SQUARE(sq + 2*UP + LEFT);
+			}
+			
+			/* right, up */
+			if(rank < 7 && file < 6) {
+				r[sq] |= SQUARE(sq + 2*RIGHT + UP);
+			}
+			
+			/* right, down */
+			if(rank > 0 && file < 6) {
+				r[sq] |= SQUARE(sq + 2*RIGHT + DOWN);
+			}
+			
+			/* down, right */
+			if(rank > 1 && file < 7) {
+				r[sq] |= SQUARE(sq + 2*DOWN + RIGHT);
+			}
+			
+			/* down, left */
+			if(rank > 1 && file > 0) {
+				r[sq] |= SQUARE(sq + 2*DOWN + LEFT);
+			}
+			
+			/* left, down */
+			if(rank > 0 && file > 1) {
+				r[sq] |= SQUARE(sq + 2*LEFT + DOWN);
+			}
+			
+			/* left, up */
+			if(rank < 7 && file > 1) {
+				r[sq] |= SQUARE(sq + 2*LEFT + UP);
+			}
+		}
+	}
+	return r;
+}
 
 
 

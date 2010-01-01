@@ -21,7 +21,8 @@
 #define LEFT	-1
 #define RIGHT	1
 
-/* this is the struct that contains all
+/* my rotated bitboard implementation: 
+ * this is the struct that contains all
  * information needed to specify a board
  */
 typedef struct {
@@ -141,4 +142,12 @@ Move* get_moves(Board *board, int *num_moves);
  * array[sq*256 + diagnol_occupancy]
  */
 long* make_tl_br_attacks();
+
+/* makes an array for attacking knights
+ * access it via the square you have a knight at:
+ *
+ * array[sq]
+ */
+long* make_knight_attacks();
+
 
