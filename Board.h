@@ -198,4 +198,7 @@ long* make_knight_attacks();
  */
 long* make_king_attacks();
 
-
+/* this function returns an array of moves to try in search
+ * it stores the number of moves generated in *number
+ */
+Move* moves(Board *board, int *number);

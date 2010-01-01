@@ -563,4 +563,9 @@ long* make_king_attacks() {
 	return r;
 }
 
-
+Move* moves(Board *board, int *number) {
+	Move *moves = (Move*) malloc(80*sizeof(Move));
+	*number = 0;
+	
+	
+}
