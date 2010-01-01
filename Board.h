@@ -6,15 +6,19 @@
 #include <stdlib.h>
 #include "Move.h"
 
+#define MAX_MOVES 80
+
 #define WHITE	0
 #define BLACK	1
 
+#define NA		-1
 #define KING	0
 #define QUEEN	1
 #define ROOK	2
 #define BISHOP	3
 #define KNIGHT	4
 #define PAWN	5
+#define ALL		6
 
 #define UP		8
 #define DOWN	-8
@@ -41,27 +45,27 @@ typedef struct {
 	 * board positions are indexed by rank
 	 * from A1 (0), A2 (1), ..., to H8 (63)
 	 */
-	long rank_positions[12];
+	long rank_positions[14];
 	
 	/* same as above but positions are
 	 * indexed by file from A1 (0),
 	 * B1 (2), ..., H8 (63)
 	 */
-	long file_positions[12];
+	long file_positions[14];
 	
 	/* this array is a diagnolized board
 	 * where the numbering goes like:
 	 * A8 (0), A7 (1), B8 (2), A6 (3),
 	 * ..., B1 (63)
 	 */
-	long tl_br_positions[12];
+	long tl_br_positions[14];
 
 	/* this array is a diagnolized board
 	 * where the numbering goes like:
 	 * A1 (0), A2 (1), B1 (2), A3 (3),
 	 * ..., B8 (63)
 	 */
-	long bl_tr_positions[12];
+	long bl_tr_positions[14];
 	
 	/* highest order bit is either WHITE or
 	 BLACK, lowest 2 bytes are the ply */
@@ -122,11 +126,6 @@ void printb(Board *board);
 /* initializes the board to a typical starting arrangement */
 void setup(Board *board);
 
-/* gets rid of any dynamically allocated memory
- * (currently doesn't do anything)
- */
-void dispose(Board *board);
-
 /* returns either WHITE or BLACK, player to play */
 int to_play(Board *board);
 
@@ -146,7 +145,7 @@ void set_ply(Board *board, int ply);
  * access the appropriate map with
  * pawn_attacks[color*64 + sq]
  */
-long* pawn_attacks();
+long* make_pawn_attacks();
 
 /* this function returns an array of masks that have
  * to do with file attacks. you get the correct mask
@@ -187,6 +186,13 @@ Move* get_moves(Board *board, int *num_moves);
  */
 long* make_tl_br_attacks();
 
+/* makes an array for bottom-left to top-right sliding
+ * pieces. squares are indexed as defined in Board.h
+ *
+ * array[sq*256 + diagnol_occupancy]
+ */
+long* make_bl_tr_attacks();
+
 /* makes an array for attacking knights
  * access it via the square you have a knight at:
  *
@@ -201,4 +207,15 @@ long* make_king_attacks();
 /* this function returns an array of moves to try in search
  * it stores the number of moves generated in *number
  */
-Move* moves(Board *board, int *number);
+Move* gen_moves(Board *board, int *number);
+
+/* this basically makes all of the move masks */
+void get_ready();
+
+/* this basically frees all of the move masks */
+void clean_up();
+
+/* Most Significant Bit
+ * this will get moved...
+ */
+int MSB(long bits);

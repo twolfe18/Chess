@@ -22,4 +22,4 @@ unsigned char moving_type(Move *m);
 unsigned char capturing_type(Move *m);
 
 /* this function make a new move */
-Move* move(int from, int to, int moving, int caputuring);
+void move_set(Move *move, int from, int to, int moving, int caputuring);

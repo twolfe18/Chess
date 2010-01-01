@@ -4,11 +4,22 @@
 
 #include "Board.h"
 
+#define VERBOSE 0
+
 #define SQUARE(X) (1L << (X))
 #define IS_ZERO(BITS, INDEX) ((BITS & 1<<INDEX) == 0)
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
+#define CLEAR(bits, index) (bits &= ~(1L << index))
 
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0"
+
+long *rank_attacks;
+long *file_attacks;
+long *tl_br_attacks;
+long *bl_tr_attacks;
+long *king_attacks;
+long *pawn_attacks;
+long *knight_attacks;
 
 void initf(Board *board, char *fen) {
 	int rank, file, i, t;
@@ -25,7 +36,7 @@ void initf(Board *board, char *fen) {
 	 * ================================== */
 	
 	/* set the intial maps to 0 */
-	for(i=0; i<12; i++) {
+	for(i=0; i<14; i++) {
 		board->rank_positions[i] = 0L;
 		board->file_positions[i] = 0L;
 		board->tl_br_positions[i] = 0L;
@@ -67,77 +78,77 @@ void initf(Board *board, char *fen) {
 		switch(c) {
 			
 			case 'K':
-				board->rank_positions[WHITE*6 + KING] |= r_sq;
-				board->file_positions[WHITE*6 + KING] |= f_sq;
-				board->tl_br_positions[WHITE*6 + KING] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + KING] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + KING] |= r_sq;
+				board->file_positions[WHITE*7 + KING] |= f_sq;
+				board->tl_br_positions[WHITE*7 + KING] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + KING] |= bl_tr_sq;
 				break;
 			case 'Q':
-				board->rank_positions[WHITE*6 + QUEEN] |= r_sq;
-				board->file_positions[WHITE*6 + QUEEN] |= f_sq;
-				board->tl_br_positions[WHITE*6 + QUEEN] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + QUEEN] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + QUEEN] |= r_sq;
+				board->file_positions[WHITE*7 + QUEEN] |= f_sq;
+				board->tl_br_positions[WHITE*7 + QUEEN] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + QUEEN] |= bl_tr_sq;
 				break;
 			case 'R':
-				board->rank_positions[WHITE*6 + ROOK] |= r_sq;
-				board->file_positions[WHITE*6 + ROOK] |= f_sq;
-				board->tl_br_positions[WHITE*6 + ROOK] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + ROOK] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + ROOK] |= r_sq;
+				board->file_positions[WHITE*7 + ROOK] |= f_sq;
+				board->tl_br_positions[WHITE*7 + ROOK] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + ROOK] |= bl_tr_sq;
 				break;
 			case 'B':
-				board->rank_positions[WHITE*6 + BISHOP] |= r_sq;
-				board->file_positions[WHITE*6 + BISHOP] |= f_sq;
-				board->tl_br_positions[WHITE*6 + BISHOP] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + BISHOP] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + BISHOP] |= r_sq;
+				board->file_positions[WHITE*7 + BISHOP] |= f_sq;
+				board->tl_br_positions[WHITE*7 + BISHOP] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + BISHOP] |= bl_tr_sq;
 				break;
 			case 'N':
-				board->rank_positions[WHITE*6 + KNIGHT] |= r_sq;
-				board->file_positions[WHITE*6 + KNIGHT] |= f_sq;
-				board->tl_br_positions[WHITE*6 + KNIGHT] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + KNIGHT] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + KNIGHT] |= r_sq;
+				board->file_positions[WHITE*7 + KNIGHT] |= f_sq;
+				board->tl_br_positions[WHITE*7 + KNIGHT] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + KNIGHT] |= bl_tr_sq;
 				break;
 			case 'P':
-				board->rank_positions[WHITE*6 + PAWN] |= r_sq;
-				board->file_positions[WHITE*6 + PAWN] |= f_sq;
-				board->tl_br_positions[WHITE*6 + PAWN] |= tl_br_sq;
-				board->bl_tr_positions[WHITE*6 + PAWN] |= bl_tr_sq;
+				board->rank_positions[WHITE*7 + PAWN] |= r_sq;
+				board->file_positions[WHITE*7 + PAWN] |= f_sq;
+				board->tl_br_positions[WHITE*7 + PAWN] |= tl_br_sq;
+				board->bl_tr_positions[WHITE*7 + PAWN] |= bl_tr_sq;
 				break;
 			
 			case 'k':
-				board->rank_positions[BLACK*6 + KING] |= r_sq;
-				board->file_positions[BLACK*6 + KING] |= f_sq;
-				board->tl_br_positions[BLACK*6 + KING] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + KING] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + KING] |= r_sq;
+				board->file_positions[BLACK*7 + KING] |= f_sq;
+				board->tl_br_positions[BLACK*7 + KING] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + KING] |= bl_tr_sq;
 				break;
 			case 'q':
-				board->rank_positions[BLACK*6 + QUEEN] |= r_sq;
-				board->file_positions[BLACK*6 + QUEEN] |= f_sq;
-				board->tl_br_positions[BLACK*6 + QUEEN] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + QUEEN] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + QUEEN] |= r_sq;
+				board->file_positions[BLACK*7 + QUEEN] |= f_sq;
+				board->tl_br_positions[BLACK*7 + QUEEN] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + QUEEN] |= bl_tr_sq;
 				break;
 			case 'r':
-				board->rank_positions[BLACK*6 + ROOK] |= r_sq;
-				board->file_positions[BLACK*6 + ROOK] |= f_sq;
-				board->tl_br_positions[BLACK*6 + ROOK] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + ROOK] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + ROOK] |= r_sq;
+				board->file_positions[BLACK*7 + ROOK] |= f_sq;
+				board->tl_br_positions[BLACK*7 + ROOK] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + ROOK] |= bl_tr_sq;
 				break;
 			case 'b':
-				board->rank_positions[BLACK*6 + BISHOP] |= r_sq;
-				board->file_positions[BLACK*6 + BISHOP] |= f_sq;
-				board->tl_br_positions[BLACK*6 + BISHOP] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + BISHOP] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + BISHOP] |= r_sq;
+				board->file_positions[BLACK*7 + BISHOP] |= f_sq;
+				board->tl_br_positions[BLACK*7 + BISHOP] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + BISHOP] |= bl_tr_sq;
 				break;
 			case 'n':
-				board->rank_positions[BLACK*6 + KNIGHT] |= r_sq;
-				board->file_positions[BLACK*6 + KNIGHT] |= f_sq;
-				board->tl_br_positions[BLACK*6 + KNIGHT] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + KNIGHT] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + KNIGHT] |= r_sq;
+				board->file_positions[BLACK*7 + KNIGHT] |= f_sq;
+				board->tl_br_positions[BLACK*7 + KNIGHT] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + KNIGHT] |= bl_tr_sq;
 				break;
 			case 'p':
-				board->rank_positions[BLACK*6 + PAWN] |= r_sq;
-				board->file_positions[BLACK*6 + PAWN] |= f_sq;
-				board->tl_br_positions[BLACK*6 + PAWN] |= tl_br_sq;
-				board->bl_tr_positions[BLACK*6 + PAWN] |= bl_tr_sq;
+				board->rank_positions[BLACK*7 + PAWN] |= r_sq;
+				board->file_positions[BLACK*7 + PAWN] |= f_sq;
+				board->tl_br_positions[BLACK*7 + PAWN] |= tl_br_sq;
+				board->bl_tr_positions[BLACK*7 + PAWN] |= bl_tr_sq;
 				break;
 				
 			/* new rank */
@@ -174,6 +185,19 @@ void initf(Board *board, char *fen) {
 	/* set fullmove number */
 	/* TODO */
 	
+	/* set the ALL positions array */
+	board->rank_positions[WHITE*7 + ALL] = board->rank_positions[WHITE*7 + KING]
+											| board->rank_positions[WHITE*7 + QUEEN]
+											| board->rank_positions[WHITE*7 + ROOK]
+											| board->rank_positions[WHITE*7 + BISHOP]
+											| board->rank_positions[WHITE*7 + KNIGHT]
+											| board->rank_positions[WHITE*7 + PAWN];
+	board->rank_positions[BLACK*7 + ALL] = board->rank_positions[BLACK*7 + KING]
+											| board->rank_positions[BLACK*7 + QUEEN]
+											| board->rank_positions[BLACK*7 + ROOK]
+											| board->rank_positions[BLACK*7 + BISHOP]
+											| board->rank_positions[BLACK*7 + KNIGHT]
+											| board->rank_positions[BLACK*7 + PAWN];											
 }
 
 void printb(Board *board) {
@@ -228,15 +252,11 @@ void printb(Board *board) {
 }
 
 void setup(Board *board) {
-	printf("[Board.init]\tinitializing the board\n");
+	if(VERBOSE)
+		printf("[Board.init]\tinitializing the board\n");
 	set_play(board, WHITE);
 	set_ply(board, 0);
 	initf(board, INITIAL_FEN);
-}
-
-void dispose(Board *board) {
-	printf("[Board.dispose]\t\tgetting rid of the board\n");
-	/* free(board->rank_positions); */
 }
 
 int ply(Board *board) {
@@ -260,7 +280,7 @@ void set_play(Board *board, int color) {
 	board->ply_and_play = color << offset;
 }
 
-long* pawn_attacks() {
+long* make_pawn_attacks() {
 	int rank, file;
 	long *r = (long*) malloc(2*64*sizeof(long));
 	
@@ -451,6 +471,14 @@ long* make_tl_br_attacks() {
 	return r;
 }
 
+long* make_bl_tr_attacks() {
+	long *r = (long*) malloc(64*256*sizeof(long));
+	
+	/* TODO */
+	
+	return r;
+}
+
 long* make_knight_attacks() {
 	
 	int rank, file, sq;
@@ -563,9 +591,75 @@ long* make_king_attacks() {
 	return r;
 }
 
-Move* moves(Board *board, int *number) {
-	Move *moves = (Move*) malloc(80*sizeof(Move));
+Move* gen_moves(Board *board, int *number) {
+	long mask;
+	int from, to, me, you, capt;
+	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
+	me = to_play(board);
+	you = 1 - me;
+
+	/* king attacks */
+ 	from = MSB(board->rank_positions[me*7 + KING]);
+	mask = king_attacks[from] & ~(board->rank_positions[me*6 + ALL]);
+	while(mask) {
+		
+		to = MSB(mask);
+		
+		capt = NA;
+		if(board->rank_positions[you*7 + ALL] & to) {
+			if(board->rank_positions[you*7 + QUEEN] & to)
+				capt = QUEEN;
+			else if(board->rank_positions[you*7 + KING] & to)
+				capt = KING;
+			else if(board->rank_positions[you*7 + ROOK] & to)
+				capt = ROOK;
+			else if(board->rank_positions[you*7 + BISHOP] & to)
+				capt = BISHOP;
+			else if(board->rank_positions[you*7 + KNIGHT] & to)
+				capt = KNIGHT;
+			else if(board->rank_positions[you*7 + PAWN] & to)
+				capt = PAWN;
+		}
+		
+		/* printf("(1) in this loop, from = %d, to = %d, capt = %d\n", from, to, capt); */
+		
+		move_set(&moves[(*number)++], from, to, KING, capt);
+		CLEAR(mask, to);
+	}
 	
-	
+	return moves;
 }
+
+void get_ready() {
+	rank_attacks = make_rank_attacks();
+	file_attacks = make_file_attacks();
+	tl_br_attacks = make_tl_br_attacks();
+	bl_tr_attacks = make_bl_tr_attacks();
+	king_attacks = make_king_attacks();
+	pawn_attacks = make_pawn_attacks();
+	knight_attacks = make_knight_attacks();
+}
+
+void clean_up() {
+	free(rank_attacks);
+	free(file_attacks);
+	free(tl_br_attacks);
+	free(bl_tr_attacks);
+	free(king_attacks);
+	free(pawn_attacks);
+	free(knight_attacks);
+}
+
+/* this will get replaced with ASM */
+int MSB(long bits) {
+	int i;
+	for(i=63; i>=0; i--)
+		if(bits & (1L << i))
+			return i;
+	return -1;
+}
+
+
+
+

@@ -74,7 +74,7 @@ int test_ply(Board *board) {
 int test_pawn_moves(Board *board) {
 	int sq, status;
 	long mask, expected;
-	long *pawn_array = pawn_attacks();
+	long *pawn_array = make_pawn_attacks();
 	
 	status = WIN;
 	
@@ -258,6 +258,26 @@ int test_king_attacks() {
 	return FAIL;
 }
 
+int test_moves() {
+	Board b;
+	int status, num_moves;
+	status = WIN;
+
+	get_ready();
+
+	/* on startup, there shouldn't be any king moves */
+	setup(&b);
+	gen_moves(&b, &num_moves);
+	if(num_moves > 0) {
+		printf("expected 0 moves, but saw %d\n", num_moves);
+		status = FAIL;
+	}
+	
+	clean_up();
+	
+	return status;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	stupid_tests();
@@ -299,7 +319,9 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.king_attacks]\tpassed\n");
 	else printf("[tests.king_attacks]\tFAILED!\n");
 	
-	dispose(&board);
+	if(WIN == test_moves())
+		printf("[tests.moves]\t\tpassed\n");
+	else printf("[tests.moves]\t\tFAILED!\n");
 	
 	printf("[tests.main]\t\ttests complete\n");
 	return EXIT_SUCCESS;
