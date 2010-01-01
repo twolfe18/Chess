@@ -67,6 +67,50 @@ typedef struct {
 	 BLACK, lowest 2 bytes are the ply */
 	int ply_and_play;
 	
+	/* these arrays store the positions of the
+	 * pieces. this is convenient for accessing
+	 * the array of masks, eg:
+	 * > knight_attacks[board->knights[WHITE + 0]]
+	 * instead of:
+	 * > FirstOne(board->rank_positions[WHITE*6 + KNIGHT])
+	 * for the first white knight
+	 * note: you cannot assume that if the lower
+	 * piece is not present, that there aren't any
+	 * of that piece on the board, you have to
+	 * check each element in the array
+	 * another eg:
+	 * for(i=0; i<8; i++)
+	 *    attacks |= pawn_attacks[board->pawns[WHITE*8 + i]];
+	 *
+	 * also, special note:
+	 * in the event of promotions, i have only left room for
+	 * each side to get 2 extra queens and 2 extra knights
+	 * i chose this because the queen's abilities are a full
+	 * superset of all pieces except the knight, so together
+	 * they are the only pieces you could want.
+	 * i may need to add the ability to get more than 2 though,
+	 * but in any reasonable game, it will be over before
+	 * either side gets 2 extra queens or rooks.
+	 *
+	 * how does this work with applying moves?
+	 * say their is an attack to G2 (14)
+	 * attacked = 14;
+	 * for(i=0; i<8; i++)
+	 *    if(board->pawns[WHITE*8 + i] == attacked)
+	 *       board->pawns[WHITE*8 + i] = OFF_BOARD;
+	 *
+	 * is all of this BS worth avoiding the call to 
+	 * FirstOne(bitmap) which could have to look at
+	 * up to 64 bits?
+	 * > initial decision: NO
+	 */
+	/* char pawns[16];
+	char kings[2];
+	char queens[6];
+	char rooks[4];
+	char knights[6];
+	char bishops[4]; */
+	
 } Board;
 
 /* initialize a board from a FEN notation string */
@@ -149,5 +193,9 @@ long* make_tl_br_attacks();
  * array[sq]
  */
 long* make_knight_attacks();
+
+/* makes an array for king attacks
+ */
+long* make_king_attacks();
 
 

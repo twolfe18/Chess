@@ -8,20 +8,18 @@
  * should have a bunch of methods associted with it
  */
 typedef struct {
-	int idkfornow;
+	unsigned char from;
+	unsigned char to;
+	unsigned char moving_capturing;
 } Move;
 
 /* returns the moving piece type (as defined in Board.h) */
-int moving_type();
+unsigned char moving_type(Move *m);
 
 /* returns the capturing piece type (as defined in Board.h)
  * can be an empty square (will decide on how to indicate this later)
  */
-int capturing_type();
+unsigned char capturing_type(Move *m);
 
-/* returns the square that the piece is moving from */
-int from();
-
-/* returns the square that the piece is moving to */
-int to();
-
+/* this function make a new move */
+Move* move(int from, int to, int moving, int caputuring);

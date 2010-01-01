@@ -507,7 +507,60 @@ long* make_knight_attacks() {
 	return r;
 }
 
-
-
+long* make_king_attacks() {
+	
+	int rank, file, sq;
+	long *r = (long*) malloc(64*sizeof(long));
+	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			sq = rank*8 + file;
+			
+			r[sq] = 0L;
+			
+			/* up, right */
+			if(rank < 7 && file < 7) {
+				r[sq] |= SQUARE(sq + UP + RIGHT);
+			}
+			
+			/* up, left */
+			if(rank < 7 && file > 0) {
+				r[sq] |= SQUARE(sq + UP + LEFT);
+			}
+			
+			/* right, up */
+			if(rank < 7 && file < 7) {
+				r[sq] |= SQUARE(sq + RIGHT + UP);
+			}
+			
+			/* right, down */
+			if(rank > 0 && file < 7) {
+				r[sq] |= SQUARE(sq + RIGHT + DOWN);
+			}
+			
+			/* down, right */
+			if(rank > 0 && file < 7) {
+				r[sq] |= SQUARE(sq + DOWN + RIGHT);
+			}
+			
+			/* down, left */
+			if(rank > 0 && file > 0) {
+				r[sq] |= SQUARE(sq + DOWN + LEFT);
+			}
+			
+			/* left, down */
+			if(rank > 0 && file > 0) {
+				r[sq] |= SQUARE(sq + LEFT + DOWN);
+			}
+			
+			/* left, up */
+			if(rank < 7 && file > 0) {
+				r[sq] |= SQUARE(sq + LEFT + UP);
+			}
+		}
+	}
+	return r;
+}
 
 
