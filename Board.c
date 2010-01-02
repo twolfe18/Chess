@@ -197,7 +197,46 @@ void initf(Board *board, char *fen) {
 											| board->rank_positions[BLACK*7 + ROOK]
 											| board->rank_positions[BLACK*7 + BISHOP]
 											| board->rank_positions[BLACK*7 + KNIGHT]
-											| board->rank_positions[BLACK*7 + PAWN];											
+											| board->rank_positions[BLACK*7 + PAWN];
+											
+	board->file_positions[WHITE*7 + ALL] = board->file_positions[WHITE*7 + KING]
+											| board->file_positions[WHITE*7 + QUEEN]
+											| board->file_positions[WHITE*7 + ROOK]
+											| board->file_positions[WHITE*7 + BISHOP]
+											| board->file_positions[WHITE*7 + KNIGHT]
+											| board->file_positions[WHITE*7 + PAWN];
+	board->file_positions[BLACK*7 + ALL] = board->file_positions[BLACK*7 + KING]
+											| board->file_positions[BLACK*7 + QUEEN]
+											| board->file_positions[BLACK*7 + ROOK]
+											| board->file_positions[BLACK*7 + BISHOP]
+											| board->file_positions[BLACK*7 + KNIGHT]
+											| board->file_positions[BLACK*7 + PAWN];
+											
+	board->tl_br_positions[WHITE*7 + ALL] = board->tl_br_positions[WHITE*7 + KING]
+											| board->tl_br_positions[WHITE*7 + QUEEN]
+											| board->tl_br_positions[WHITE*7 + ROOK]
+											| board->tl_br_positions[WHITE*7 + BISHOP]
+											| board->tl_br_positions[WHITE*7 + KNIGHT]
+											| board->tl_br_positions[WHITE*7 + PAWN];
+	board->tl_br_positions[BLACK*7 + ALL] = board->tl_br_positions[BLACK*7 + KING]
+											| board->tl_br_positions[BLACK*7 + QUEEN]
+											| board->tl_br_positions[BLACK*7 + ROOK]
+											| board->tl_br_positions[BLACK*7 + BISHOP]
+											| board->tl_br_positions[BLACK*7 + KNIGHT]
+											| board->tl_br_positions[BLACK*7 + PAWN];
+
+	board->bl_tr_positions[WHITE*7 + ALL] = board->bl_tr_positions[WHITE*7 + KING]
+											| board->bl_tr_positions[WHITE*7 + QUEEN]
+											| board->bl_tr_positions[WHITE*7 + ROOK]
+											| board->bl_tr_positions[WHITE*7 + BISHOP]
+											| board->bl_tr_positions[WHITE*7 + KNIGHT]
+											| board->bl_tr_positions[WHITE*7 + PAWN];						
+	board->bl_tr_positions[BLACK*7 + ALL] = board->bl_tr_positions[BLACK*7 + KING]
+											| board->bl_tr_positions[BLACK*7 + QUEEN]
+											| board->bl_tr_positions[BLACK*7 + ROOK]
+											| board->bl_tr_positions[BLACK*7 + BISHOP]
+											| board->bl_tr_positions[BLACK*7 + KNIGHT]
+											| board->bl_tr_positions[BLACK*7 + PAWN];
 }
 
 void printb(Board *board) {
@@ -576,7 +615,7 @@ Move* gen_moves(Board *board, int *number) {
 	to = 0;
 	capt = NA;
 	
-	/* knight attacks */
+	/* knight moves */
 	from = MSB(board->rank_positions[me*7 + KNIGHT], 0);
 	while(from > 0) {
 		
@@ -605,20 +644,20 @@ Move* gen_moves(Board *board, int *number) {
 		from = MSB(board->rank_positions[me*7 + KNIGHT], 64-from);
 	}
 	
-	/* bishop attacks */
+	/* bishop moves */
 	
 	
-	/* queen attacks */
+	/* queen moves */
 	
 	
-	/* rook attacks */
+	/* rook moves */
 	from = MSB(board->rank_positions[me*7 + ROOK], 0);
-	while(from > 0 && 0) {
+	while(from > 0) {
 		
 		/* get the rank moves */
 		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
-		rank = (unsigned char) (mask >> RANK(from));
-		mask = rank_attacks[from*256 + rank];
+		rank = (unsigned char) (mask >> (RANK(from)*8));
+		mask = rank_attacks[from*256 + rank] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
 			
@@ -643,9 +682,9 @@ Move* gen_moves(Board *board, int *number) {
 		}
 		
 		/* get the file moves */
-		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
-		file = (unsigned char) (mask >> FILE(from));
-		mask = file_attacks[from*256 + file];
+		mask = board->file_positions[me*7 + ALL] | board->file_positions[you*7 + ALL];
+		file = (unsigned char) (mask >> (FILE(from)*8));
+		mask = file_attacks[from*256 + file] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
 			
@@ -669,10 +708,10 @@ Move* gen_moves(Board *board, int *number) {
 			to = MSB(mask, 64-to);
 		}
 		
-		from = MSB(board->rank_positions[me*7 + ROOK], 0);
+		from = MSB(board->rank_positions[me*7 + ROOK], 64-from);
 	}
 
-	/* king attacks */
+	/* king moves */
  	from = MSB(board->rank_positions[me*7 + KING], 0);
 	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 	while(mask) {
@@ -699,7 +738,7 @@ Move* gen_moves(Board *board, int *number) {
 		CLEAR(mask, to);
 	}
 	
-	/* pawn attacks */
+	/* pawn moves */
 	if(me == WHITE) flip = 1;
 	else flip = -1;
 	from = MSB(board->rank_positions[me*7 + PAWN], 0);
@@ -750,7 +789,9 @@ Move* gen_moves(Board *board, int *number) {
 		/* check single push */
 		push = 0;
 		to = from + UP*flip;
-		if(to < 64 && to >= 0 && !(board->rank_positions[you*7 + ALL] & SQUARE(to))) {
+		if(to < 64 && to >= 0 &&
+			!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
+			!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
 			if((me == WHITE && RANK(from) == 1) || (me == BLACK && RANK(from) == 6))
 				push = 1;
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
@@ -759,7 +800,8 @@ Move* gen_moves(Board *board, int *number) {
 		/* check double push */
 		to = from + 2*UP*flip;
 		if(push > 0 && to < 64 && to >= 0 &&
-				!(board->rank_positions[you*7 + ALL] & SQUARE(to))) {
+				!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
+				!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		

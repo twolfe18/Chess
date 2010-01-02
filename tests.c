@@ -255,6 +255,61 @@ int test_moves() {
 		status = FAIL;
 	}
 	free(moves);
+	
+	/* here is one with only rook moves */
+	initf(&b, "8/8/8/2r5/8/5R2/8/8 b KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 14;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
+	
+	/* here is one with only rook moves */
+	initf(&b, "8/2p5/8/2r5/8/5R2/8/8 b KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 15;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves); 
+	
+	/* here is another one with only rook moves */
+	initf(&b, "8/2p5/8/2rp4/8/5R2/8/8 b KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 9;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
+	
+	/* here is one last one with only rook moves */
+	initf(&b, "8/2p5/8/2rp4/8/2p2R2/8/8 b KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 7;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
+	
+	/* and again for white... */
+	initf(&b, "8/2p5/8/2rp4/8/2p2R2/8/8 w KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 12;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
 
 	clean_up();
 	
