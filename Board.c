@@ -3,6 +3,7 @@
  */
 
 #include "Board.h"
+#include "Util.h"
 
 #define VERBOSE 0
 
@@ -444,6 +445,17 @@ long* make_tl_br_attacks() {
 			 */
 			sq = width*(width-1) + file;
 			
+			/* how you index is pretty much arbitrary
+			 * since i have allocated a full 256 possiblities
+			 * for each square. it would matter if i only used
+			 * the space needed, but that is slightly more
+			 * comlicated (maybe something for later versions)
+			 * 
+			 * so for convenience, i am going to use standard
+			 * square indexing
+			 */
+			/* sq = rank*8 + file; */
+			
 			if(width < 1 || width > 8)
 				printf("[board.tl_br_attacks]\twidth = %d", width);
 			
@@ -603,9 +615,11 @@ long* make_king_attacks() {
 }
 
 Move* gen_moves(Board *board, int *number) {
+	
 	unsigned long mask;
-	int from, to, me, you, capt, flip;
-	unsigned char push, file, rank;
+	int from, to, me, you, capt, flip, diff;
+	unsigned char push, file, rank, diag;
+	
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
@@ -614,8 +628,9 @@ Move* gen_moves(Board *board, int *number) {
 	/* these are just to get gcc to not give me warnings */
 	to = 0;
 	capt = NA;
+	diag = 0;
 	
-	/* knight moves */
+	/* KNIGHT MOVES */
 	from = MSB(board->rank_positions[me*7 + KNIGHT], 0);
 	while(from > 0) {
 		
@@ -644,13 +659,54 @@ Move* gen_moves(Board *board, int *number) {
 		from = MSB(board->rank_positions[me*7 + KNIGHT], 64-from);
 	}
 	
-	/* bishop moves */
+	/* BISHOP MOVES */
+	/* tl_br moves */
+	/* from = MSB(board->tl_br_positions[me*7 + BISHOP], 0);
+	while(from > 0) {
+		
+		mask = board->tl_br_positions[me*7 + BISHOP] | board->tl_br_positions[you*7 + BISHOP];
+		
+		diag = (unsigned char) mask[get_tl_br_diag(rank, file)];
+		
+		mask = tl_br_attacks[(rank*8+file)*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
+		
+		to = MSB(mask, 0);
+		while(to > 0) {
+			capt = NA;
+			if(board->tl_br_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->tl_br_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->tl_br_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->tl_br_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->tl_br_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->tl_br_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+			}
+			
+			diff = to - from;
+			from = from + UP*diff + LEFT*diff;
+			
+			move_set(&moves[(*number)++], from, to, KNIGHT, capt);
+			to = MSB(mask, 64-to);
+		}
+		
+		from = MSB(board->tl_br_positions[me*7 + BISHOP], 64-from);
+	} */
+	
+	/* bl_tr moves */
 	
 	
-	/* queen moves */
 	
 	
-	/* rook moves */
+	/* QUEEN MOVES */
+	
+	
+	/* ROOK MOVES */
 	from = MSB(board->rank_positions[me*7 + ROOK], 0);
 	while(from > 0) {
 		
@@ -711,7 +767,7 @@ Move* gen_moves(Board *board, int *number) {
 		from = MSB(board->rank_positions[me*7 + ROOK], 64-from);
 	}
 
-	/* king moves */
+	/* KING MOVES */
  	from = MSB(board->rank_positions[me*7 + KING], 0);
 	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 	while(mask) {
@@ -738,7 +794,7 @@ Move* gen_moves(Board *board, int *number) {
 		CLEAR(mask, to);
 	}
 	
-	/* pawn moves */
+	/* PAWN MOVES */
 	if(me == WHITE) flip = 1;
 	else flip = -1;
 	from = MSB(board->rank_positions[me*7 + PAWN], 0);
@@ -829,14 +885,6 @@ void clean_up() {
 	free(knight_attacks);
 }
 
-/* this will get replaced with ASM */
-int MSB(long bits, int offset) {
-	int i;
-	for(i=(63-offset); i>=0; i--)
-		if(bits & (1L << i))
-			return i;
-	return -1;
-}
 
 
 

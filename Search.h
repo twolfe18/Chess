@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include "Board.h"
 
 int scout(Board *board, int alpha, int beta, int depth);
 
