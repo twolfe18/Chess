@@ -71,50 +71,6 @@ int test_ply(Board *board) {
 	return WIN;
 }
 
-int test_pawn_moves(Board *board) {
-	int sq, status;
-	long mask, expected;
-	long *pawn_array = make_pawn_attacks();
-	
-	status = WIN;
-	
-	/* say i had a WHITE pawn at B2 (9)
-	 * it should have a move to B3 (17) and B4 (25)
-	 */
-	sq = 9;
-	mask = pawn_array[WHITE*64 + sq];
-	expected = SQUARE(17) ^ SQUARE(25);
-	if(mask != expected) {
-		printf("[tests.pawn_tests] (1) expected %d, but got %d\n", (int) expected, (int) mask);
-		status = FAIL;
-	}
-	
-	/* if i had a BLACK pawn at B2 (9) again,
-	 * i should only have one move to B1 (1)
-	 */
-	sq = 9;
-	mask = pawn_array[BLACK*64 + sq];
-	expected = SQUARE(1);
-	if(mask != expected)  {
-		printf("[tests.pawn_tests] (2) expected %d, but got %d\n", (int) expected, (int) mask);
-		status = FAIL;
-	}
-	
-	/* if i had a WHITE pawn at C8 (58), I should
-	 * not have any allowed moves
-	 */
-	sq = 58;
-	mask = pawn_array[WHITE*64 + sq];
-	expected = 0L;
-	if(mask != expected)  {
-		printf("[tests.pawn_tests] (2) expected %d, but got %d\n", (int) expected, (int) mask);
-		status = FAIL;
-	}
-	
-	free(pawn_array);
-	return status;
-}
-
 void stupid_tests() {
 	long mask;
 	mask = SQUARE(12);
@@ -292,10 +248,6 @@ int main(int argc, const char * argv[]) {
 	printb(&board);
 	test_to_play(&board);
 	test_ply(&board);
-	
-	if(WIN == test_pawn_moves(&board))
-		printf("[tests.pawn_moves]\tpassed\n");
-	else printf("[tests.pawn_moves]\tFAILED!\n");
 	
 	if(WIN == test_file_attacks())
 		printf("[tests.file_attacks]\tpassed\n");

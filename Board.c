@@ -20,7 +20,6 @@ long *file_attacks;
 long *tl_br_attacks;
 long *bl_tr_attacks;
 long *king_attacks;
-long *pawn_attacks;
 long *knight_attacks;
 
 void initf(Board *board, char *fen) {
@@ -279,34 +278,6 @@ int to_play(Board *board) {
 void set_play(Board *board, int color) {
 	int offset = sizeof(int) - 1;
 	board->ply_and_play = color << offset;
-}
-
-long* make_pawn_attacks() {
-	int rank, file;
-	long *r = (long*) malloc(2*64*sizeof(long));
-	
-	for(rank=0; rank<8; rank++) {
-		for(file=0; file<8; file++) {
-			
-			r[WHITE*64 + rank*8 + file] = 0L;
-			r[BLACK*64 + rank*8 + file] = 0L;
-			
-			if(rank < 7) {
-				r[WHITE*64 + rank*8 + file] = SQUARE(rank*8+file + UP);
-				if(rank < 6) {
-					r[WHITE*64 + rank*8 + file] |= SQUARE(rank*8+file + 2*UP);
-				}
-			}
-			
-			if(rank > 0) {
-				r[BLACK*64 + rank*8 + file] = SQUARE(rank*8+file + DOWN);
-				if(rank > 1) {
-					r[BLACK*64 + rank*8 + file] |= SQUARE(rank*8+file + 2*DOWN);
-				}
-			}
-		}
-	}
-	return r;
 }
 
 Move* get_moves(Board *board, int *num_moves) {
@@ -709,7 +680,6 @@ void get_ready() {
 	tl_br_attacks = make_tl_br_attacks();
 	bl_tr_attacks = make_bl_tr_attacks();
 	king_attacks = make_king_attacks();
-	pawn_attacks = make_pawn_attacks();
 	knight_attacks = make_knight_attacks();
 }
 
@@ -719,7 +689,6 @@ void clean_up() {
 	free(tl_br_attacks);
 	free(bl_tr_attacks);
 	free(king_attacks);
-	free(pawn_attacks);
 	free(knight_attacks);
 }
 

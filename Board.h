@@ -138,15 +138,6 @@ int ply(Board *board);
 /* sets the ply of the game (note: this is not the fullmove number) */
 void set_ply(Board *board, int ply);
 
-/* this function returns an array where the index
- * is based on the position of a pawn, and the resulting
- * long is all 0's except for where the pawn can move
- *
- * access the appropriate map with
- * pawn_attacks[color*64 + sq]
- */
-long* make_pawn_attacks();
-
 /* this function returns an array of masks that have
  * to do with file attacks. you get the correct mask
  * by giving it:
