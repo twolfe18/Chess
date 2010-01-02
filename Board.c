@@ -13,7 +13,7 @@
 #define RANK(square) (((int)square/8))
 #define FILE(square) ((square%8))
 
-#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0"
+#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 long *rank_attacks;
 long *file_attacks;
@@ -612,7 +612,6 @@ Move* gen_moves(Board *board, int *number) {
 	
 	
 	/* rook attacks */
-	/* there's something wrong with this => seg fault */
 	from = MSB(board->rank_positions[me*7 + ROOK], 0);
 	while(from > 0 && 0) {
 		
@@ -644,7 +643,31 @@ Move* gen_moves(Board *board, int *number) {
 		}
 		
 		/* get the file moves */
-		file = 0;
+		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
+		file = (unsigned char) (mask >> FILE(from));
+		mask = file_attacks[from*256 + file];
+		to = MSB(mask, 0);
+		while(to > 0) {
+			
+			capt = NA;
+			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+			}
+			
+			move_set(&moves[(*number)++], from, to, PAWN, capt);
+			to = MSB(mask, 64-to);
+		}
 		
 		from = MSB(board->rank_positions[me*7 + ROOK], 0);
 	}
@@ -653,8 +676,6 @@ Move* gen_moves(Board *board, int *number) {
  	from = MSB(board->rank_positions[me*7 + KING], 0);
 	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 	while(mask) {
-		
-		printf("adding a king move\n");
 		
 		to = MSB(mask, 0);
 		
@@ -673,8 +694,6 @@ Move* gen_moves(Board *board, int *number) {
 			else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 				capt = PAWN;
 		}
-		
-		/* printf("(1) in this loop, from = %d, to = %d, capt = %d\n", from, to, capt); */
 		
 		move_set(&moves[(*number)++], from, to, KING, capt);
 		CLEAR(mask, to);
@@ -732,7 +751,8 @@ Move* gen_moves(Board *board, int *number) {
 		push = 0;
 		to = from + UP*flip;
 		if(to < 64 && to >= 0 && !(board->rank_positions[you*7 + ALL] & SQUARE(to))) {
-			push = 1;
+			if((me == WHITE && RANK(from) == 1) || (me == BLACK && RANK(from) == 6))
+				push = 1;
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		

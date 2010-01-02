@@ -228,6 +228,30 @@ int test_moves() {
 	expected = 20;
 	if(num_moves != expected) {
 		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
+	
+	/* try this config (black moves) */
+	initf(&b, "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 22;
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
+		status = FAIL;
+	}
+	free(moves);
+	
+	/* try this config (white moves) */
+	initf(&b, "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
+	set_play(&b, WHITE);
+	moves = gen_moves(&b, &num_moves);
+	expected = 13 + 7 + 1 + 1 + 5; /* pawns, knights, king, queen, bishop */
+	if(num_moves != expected) {
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
+		printb(&b);
 		status = FAIL;
 	}
 	free(moves);
