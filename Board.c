@@ -168,7 +168,6 @@ void initf(Board *board, char *fen) {
 	}
 	
 	/* set to color to play */
-	i++;
 	if(fen[i] == 'w' || fen[i] == 'W')
 		set_play(board, WHITE);
 	else set_play(board, BLACK);
@@ -592,19 +591,22 @@ long* make_king_attacks() {
 }
 
 Move* gen_moves(Board *board, int *number) {
-	long mask;
+	long mask, positions;
 	int from, to, me, you, capt;
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
 	you = 1 - me;
+	to = 0;
 
 	/* king attacks */
- 	from = MSB(board->rank_positions[me*7 + KING]);
-	mask = king_attacks[from] & ~(board->rank_positions[me*6 + ALL]);
+ 	from = MSB(board->rank_positions[me*7 + KING], 0);
+	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 	while(mask) {
 		
-		to = MSB(mask);
+		printf("adding a king move\n");
+		
+		to = MSB(mask, 0);
 		
 		capt = NA;
 		if(board->rank_positions[you*7 + ALL] & to) {
@@ -626,6 +628,44 @@ Move* gen_moves(Board *board, int *number) {
 		
 		move_set(&moves[(*number)++], from, to, KING, capt);
 		CLEAR(mask, to);
+	}
+	
+	/* pawn attacks */
+	/* warning: this is not quite right
+	 * i need to check for 1 square pushes, if
+	 * that is open and your on the 2nd or 7th
+	 * rank then check for 2 square pushes
+	 */
+	positions = board->rank_positions[me*7 + PAWN];
+	from = MSB(positions, 0);
+	while(from > 0) {
+		
+		mask = pawn_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
+		to = MSB(mask, 0);
+		
+		while(to > 0) {
+		
+			capt = NA;
+			if(board->rank_positions[you*7 + ALL] & to) {
+				if(board->rank_positions[you*7 + QUEEN] & to)
+					capt = QUEEN;
+				else if(board->rank_positions[you*7 + KING] & to)
+					capt = KING;
+				else if(board->rank_positions[you*7 + ROOK] & to)
+					capt = ROOK;
+				else if(board->rank_positions[you*7 + BISHOP] & to)
+					capt = BISHOP;
+				else if(board->rank_positions[you*7 + KNIGHT] & to)
+					capt = KNIGHT;
+				else if(board->rank_positions[you*7 + PAWN] & to)
+					capt = PAWN;
+			}
+			
+			move_set(&moves[(*number)++], from, to, PAWN, capt);
+			to = MSB(mask, 64-to);
+		}
+		
+		from = MSB(positions, 64-from);
 	}
 	
 	return moves;
@@ -652,9 +692,9 @@ void clean_up() {
 }
 
 /* this will get replaced with ASM */
-int MSB(long bits) {
+int MSB(long bits, int offset) {
 	int i;
-	for(i=63; i>=0; i--)
+	for(i=(63-offset); i>=0; i--)
 		if(bits & (1L << i))
 			return i;
 	return -1;

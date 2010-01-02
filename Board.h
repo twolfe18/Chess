@@ -218,4 +218,4 @@ void clean_up();
 /* Most Significant Bit
  * this will get moved...
  */
-int MSB(long bits);
+int MSB(long bits, int offset);

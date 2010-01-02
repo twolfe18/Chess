@@ -260,7 +260,7 @@ int test_king_attacks() {
 
 int test_moves() {
 	Board b;
-	int status, num_moves;
+	int status, num_moves, expected;
 	status = WIN;
 
 	get_ready();
@@ -268,11 +268,13 @@ int test_moves() {
 	/* on startup, there shouldn't be any king moves */
 	setup(&b);
 	gen_moves(&b, &num_moves);
-	if(num_moves > 0) {
-		printf("expected 0 moves, but saw %d\n", num_moves);
+	expected = 20;
+	if(num_moves != expected) {
+		printf("\texpected %d moves, but saw %d\n", expected, num_moves);
 		status = FAIL;
 	}
-	
+
+
 	clean_up();
 	
 	return status;

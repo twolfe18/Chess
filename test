@@ -5,5 +5,5 @@ rm testing
 gcc -O3 -ansi -Wall Board.* Move.* tests.c -o testing
 
 echo "\nRUNNING =============================================================\n"
-./testing
+time ./testing
 echo "\nDONE ================================================================\n"
