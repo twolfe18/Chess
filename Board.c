@@ -564,9 +564,9 @@ long* make_king_attacks() {
 }
 
 Move* gen_moves(Board *board, int *number) {
-	long mask;
+	unsigned long mask;
 	int from, to, me, you, capt, flip;
-	unsigned char push;
+	unsigned char push, file, rank;
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
@@ -612,7 +612,42 @@ Move* gen_moves(Board *board, int *number) {
 	
 	
 	/* rook attacks */
-
+	/* there's something wrong with this => seg fault */
+	from = MSB(board->rank_positions[me*7 + ROOK], 0);
+	while(from > 0 && 0) {
+		
+		/* get the rank moves */
+		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
+		rank = (unsigned char) (mask >> RANK(from));
+		mask = rank_attacks[from*256 + rank];
+		to = MSB(mask, 0);
+		while(to > 0) {
+			
+			capt = NA;
+			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+			}
+			
+			move_set(&moves[(*number)++], from, to, PAWN, capt);
+			to = MSB(mask, 64-to);
+		}
+		
+		/* get the file moves */
+		file = 0;
+		
+		from = MSB(board->rank_positions[me*7 + ROOK], 0);
+	}
 
 	/* king attacks */
  	from = MSB(board->rank_positions[me*7 + KING], 0);
