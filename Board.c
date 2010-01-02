@@ -209,30 +209,30 @@ void printb(Board *board) {
 			
 			sq = SQUARE(rank*8+file);
 			
-			if(board->rank_positions[WHITE*6+QUEEN] & sq)
+			if(board->rank_positions[WHITE*7+QUEEN] & sq)
 				b[rank][file] = 'Q';
-			else if(board->rank_positions[WHITE*6+KING] & sq)
+			else if(board->rank_positions[WHITE*7+KING] & sq)
 				b[rank][file] = 'K';
-			else if(board->rank_positions[WHITE*6+ROOK] & sq)
+			else if(board->rank_positions[WHITE*7+ROOK] & sq)
 				b[rank][file] = 'R';
-			else if(board->rank_positions[WHITE*6+BISHOP] & sq)
+			else if(board->rank_positions[WHITE*7+BISHOP] & sq)
 				b[rank][file] = 'B';
-			else if(board->rank_positions[WHITE*6+KNIGHT] & sq)
+			else if(board->rank_positions[WHITE*7+KNIGHT] & sq)
 				b[rank][file] = 'N';
-			else if(board->rank_positions[WHITE*6+PAWN] & sq)
+			else if(board->rank_positions[WHITE*7+PAWN] & sq)
 				b[rank][file] = 'P';
 			
-			else if(board->rank_positions[BLACK*6+QUEEN] & sq)
+			else if(board->rank_positions[BLACK*7+QUEEN] & sq)
 				b[rank][file] = 'q';
-			else if(board->rank_positions[BLACK*6+KING] & sq)
+			else if(board->rank_positions[BLACK*7+KING] & sq)
 				b[rank][file] = 'k';
-			else if(board->rank_positions[BLACK*6+ROOK] & sq)
+			else if(board->rank_positions[BLACK*7+ROOK] & sq)
 				b[rank][file] = 'r';
-			else if(board->rank_positions[BLACK*6+BISHOP] & sq)
+			else if(board->rank_positions[BLACK*7+BISHOP] & sq)
 				b[rank][file] = 'b';
-			else if(board->rank_positions[BLACK*6+KNIGHT] & sq)
+			else if(board->rank_positions[BLACK*7+KNIGHT] & sq)
 				b[rank][file] = 'n';
-			else if(board->rank_positions[BLACK*6+PAWN] & sq)
+			else if(board->rank_positions[BLACK*7+PAWN] & sq)
 				b[rank][file] = 'p';
 			
 			else b[rank][file] = '-';
@@ -564,14 +564,55 @@ long* make_king_attacks() {
 }
 
 Move* gen_moves(Board *board, int *number) {
-	long mask, positions;
+	long mask;
 	int from, to, me, you, capt, flip;
 	unsigned char push;
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
 	you = 1 - me;
+	
+	/* these are just to get gcc to not give me warnings */
 	to = 0;
+	capt = NA;
+	
+	/* knight attacks */
+	from = MSB(board->rank_positions[me*7 + KNIGHT], 0);
+	while(from > 0) {
+		
+		mask = knight_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
+		to = MSB(mask, 0);
+		while(to > 0) {
+			capt = NA;
+			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+			}
+			move_set(&moves[(*number)++], from, to, KNIGHT, capt);
+			to = MSB(mask, 64-to);
+		}
+		
+		from = MSB(board->rank_positions[me*7 + KNIGHT], 64-from);
+	}
+	
+	/* bishop attacks */
+	
+	
+	/* queen attacks */
+	
+	
+	/* rook attacks */
+
 
 	/* king attacks */
  	from = MSB(board->rank_positions[me*7 + KING], 0);
@@ -583,18 +624,18 @@ Move* gen_moves(Board *board, int *number) {
 		to = MSB(mask, 0);
 		
 		capt = NA;
-		if(board->rank_positions[you*7 + ALL] & to) {
-			if(board->rank_positions[you*7 + QUEEN] & to)
+		if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+			if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 				capt = QUEEN;
-			else if(board->rank_positions[you*7 + KING] & to)
+			else if(board->rank_positions[you*7 + KING] & SQUARE(to))
 				capt = KING;
-			else if(board->rank_positions[you*7 + ROOK] & to)
+			else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
 				capt = ROOK;
-			else if(board->rank_positions[you*7 + BISHOP] & to)
+			else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
 				capt = BISHOP;
-			else if(board->rank_positions[you*7 + KNIGHT] & to)
+			else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
 				capt = KNIGHT;
-			else if(board->rank_positions[you*7 + PAWN] & to)
+			else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 				capt = PAWN;
 		}
 		
@@ -607,8 +648,7 @@ Move* gen_moves(Board *board, int *number) {
 	/* pawn attacks */
 	if(me == WHITE) flip = 1;
 	else flip = -1;
-	positions = board->rank_positions[me*7 + PAWN];
-	from = MSB(positions, 0);
+	from = MSB(board->rank_positions[me*7 + PAWN], 0);
 	while(from > 0) {
 		
 		/* check captures */
@@ -668,7 +708,7 @@ Move* gen_moves(Board *board, int *number) {
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		
-		from = MSB(positions, 64-from);
+		from = MSB(board->rank_positions[me*7 + PAWN], 64-from);
 	}
 	
 	return moves;

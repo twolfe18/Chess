@@ -216,6 +216,7 @@ int test_king_attacks() {
 
 int test_moves() {
 	Board b;
+	Move *moves;
 	int status, num_moves, expected;
 	status = WIN;
 
@@ -223,13 +224,13 @@ int test_moves() {
 
 	/* on startup, there shouldn't be any king moves */
 	setup(&b);
-	gen_moves(&b, &num_moves);
+	moves = gen_moves(&b, &num_moves);
 	expected = 20;
 	if(num_moves != expected) {
-		printf("\texpected %d moves, but saw %d\n", expected, num_moves);
+		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
 		status = FAIL;
 	}
-
+	free(moves);
 
 	clean_up();
 	
@@ -245,7 +246,10 @@ int main(int argc, const char * argv[]) {
 	
 	Board board;
 	setup(&board);
+	printf("\n");
 	printb(&board);
+	printf("\n");
+	
 	test_to_play(&board);
 	test_ply(&board);
 	
@@ -277,6 +281,6 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.moves]\t\tpassed\n");
 	else printf("[tests.moves]\t\tFAILED!\n");
 	
-	printf("[tests.main]\t\ttests complete\n");
+	printf("\n[tests.main]\t\ttests complete\n");
 	return EXIT_SUCCESS;
 }
