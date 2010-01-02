@@ -10,6 +10,8 @@
 #define IS_ZERO(BITS, INDEX) ((BITS & 1<<INDEX) == 0)
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 #define CLEAR(bits, index) (bits &= ~(1L << index))
+#define RANK(square) (((int)square/8))
+#define FILE(square) ((square%8))
 
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\0"
 
@@ -592,7 +594,8 @@ long* make_king_attacks() {
 
 Move* gen_moves(Board *board, int *number) {
 	long mask, positions;
-	int from, to, me, you, capt;
+	int from, to, me, you, capt, flip;
+	unsigned char push;
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
@@ -631,38 +634,67 @@ Move* gen_moves(Board *board, int *number) {
 	}
 	
 	/* pawn attacks */
-	/* warning: this is not quite right
-	 * i need to check for 1 square pushes, if
-	 * that is open and your on the 2nd or 7th
-	 * rank then check for 2 square pushes
-	 */
+	if(me == WHITE) flip = 1;
+	else flip = -1;
 	positions = board->rank_positions[me*7 + PAWN];
 	from = MSB(positions, 0);
 	while(from > 0) {
 		
-		mask = pawn_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
-		to = MSB(mask, 0);
-		
-		while(to > 0) {
-		
-			capt = NA;
-			if(board->rank_positions[you*7 + ALL] & to) {
-				if(board->rank_positions[you*7 + QUEEN] & to)
+		/* check captures */
+		if((me == WHITE && RANK(from) < 7) || (me == BLACK && RANK(from) > 0)) {
+			
+			/* forward, left */
+			to = from + UP*flip + LEFT;
+			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & to)
+				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
 					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & to)
+				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
 					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & to)
+				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
 					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & to)
+				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
 					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & to)
+				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
+				
+				move_set(&moves[(*number)++], from, to, PAWN, capt);
 			}
 			
-			move_set(&moves[(*number)++], from, to, PAWN, capt);
-			to = MSB(mask, 64-to);
+			/* forward, right */
+			to = from + UP*flip + RIGHT;
+			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+				
+				move_set(&moves[(*number)++], from, to, PAWN, capt);
+			}
+		}
+		
+		/* check single push */
+		push = 0;
+		to = from + UP*flip;
+		if(to < 64 && to >= 0 && !(board->rank_positions[you*7 + ALL] & SQUARE(to))) {
+			push = 1;
+			move_set(&moves[(*number)++], from, to, PAWN, NA);
+		}
+		
+		/* check double push */
+		to = from + 2*UP*flip;
+		if(push > 0 && to < 64 && to >= 0 &&
+				!(board->rank_positions[you*7 + ALL] & SQUARE(to))) {
+			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		
 		from = MSB(positions, 64-from);
