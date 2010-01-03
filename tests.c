@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "Board.h"
 
+#define QUIET 0
+
 #define SQUARE(X) (1L << (X))
 #define puts(X) printf(X); printf("\n");
 
@@ -220,15 +222,25 @@ int test_moves() {
 	int status, num_moves, expected;
 	status = WIN;
 
+	printf("testing moves");
+
 	get_ready();
+	
+	printf("\tgot ready\n");
 
 	/* on startup, there shouldn't be any king moves */
 	setup(&b);
 	moves = gen_moves(&b, &num_moves);
 	expected = 20;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -238,8 +250,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 22;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -250,8 +268,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 13 + 7 + 1 + 1 + 5; /* pawns, knights, king, queen, bishop */
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -261,8 +285,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 14;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -270,10 +300,16 @@ int test_moves() {
 	/* here is one with only rook moves */
 	initf(&b, "8/2p5/8/2r5/8/5R2/8/8 b KQkq - 1 2");
 	moves = gen_moves(&b, &num_moves);
-	expected = 15;
+	expected = 13;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves); 
@@ -283,8 +319,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 9;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -294,8 +336,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 7;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -305,8 +353,14 @@ int test_moves() {
 	moves = gen_moves(&b, &num_moves);
 	expected = 12;
 	if(num_moves != expected) {
-		printf("\t>> expected %d moves, but saw %d\n", expected, num_moves);
-		printb(&b);
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
 		status = FAIL;
 	}
 	free(moves);
@@ -339,6 +393,13 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_rank_attacks())
 		printf("[tests.rank_attacks]\tpassed\n");
 	else printf("[tests.rank_attacks]\tFAILED!\n");
+	
+	/*** WTF MANG??? ***/
+	printf("OMG MY STUPID TEST\n");
+	Move *moves = (Move*) malloc(80*sizeof(Move));
+	free(moves);
+	printf("worked this time!\n");
+	/*******************/
 	
 	if(WIN == test_initf())
 		printf("[tests.initf]\t\tpassed\n");

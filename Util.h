@@ -1,12 +1,14 @@
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 
 /* this array is for getting the rank*8+file number
  * given the tl_br number
  */
-static int *tlbr_to_rf;
+int *tlbr_to_rf;
+int *bltr_to_rf;
 
 /* this array is for getting the tl_br diagnol
  * given the rank*8+file number
@@ -14,19 +16,62 @@ static int *tlbr_to_rf;
  * notice, this is not the exact square, it is
  * beginning of the diagnol
  */
-static int *rf_to_tlbr;
+int *rf_to_tlbr;
+int *rf_to_bltr;
 
 void util_setup() {
-	char r, f, i;
+	
+	char r, f, i, width;
 	rf_to_tlbr = (int*) malloc(64*sizeof(int));
+	rf_to_bltr = (int*) malloc(64*sizeof(int));
+	
 	tlbr_to_rf = (int*) malloc(64*sizeof(int));
+	bltr_to_rf = (int*) malloc(64*sizeof(int));
+	
 	i = 0;
-	for(r=7; r>=0; r--) {
-		for(f=0; f<8; f++) {
-			rf_to_tlbr[(int) r*8+f] = i;
-			tlbr_to_rf[(int) i++] = MAX(r,f)*(MAX(r,f)+1)/2;
+	/* top left of board, including diagnol */
+	for(width=1; width<=8; width++) {
+		for(f=0; f<width; f++) {
+			r = 7 - (width - f - 1);
+			rf_to_tlbr[(int) r*8+f] = (int) i;
+			tlbr_to_rf[(int) i] = (int) r*8+f;
+			i++;
 		}
 	}
+	/* bottom right of board, excluding diagnol */
+	for(width=7; width>=0; width--) {
+		for(f=0; f<width; f++) {
+			r = width - (7-f) - 1;
+			rf_to_tlbr[(int) r*8+f] = (int) i;
+			tlbr_to_rf[(int) i] = (int) r*8+f;
+			i++;
+		}
+	}
+	if(i != 64)
+		printf("util_setup FAILED!\n");
+		
+		
+	i = 0;
+	/* bottom left of board, including diagnol */
+	for(width=1; width<=8; width++) {
+		for(f=0; f<width; f++) {
+			r = width - f - 1;
+			rf_to_bltr[(int) r*8+f] = (int) i;
+			bltr_to_rf[(int) i] = (int) r*8+f;
+			i++;
+		}
+	}
+	/* top right of board, excluding diagnol */
+	for(width=7; width>=0; width--) {
+		for(f=0; f<width; f++) {
+			r = 7 - (width - (7-f) - 1);
+			rf_to_bltr[(int) r*8+f] = (int) i;
+			bltr_to_rf[(int) i] = (int) r*8+f;
+			i++;
+		}
+	}
+	if(i != 64)
+		printf("util_setup FAILED!\n");
 }
 
 void util_cleanup() {
