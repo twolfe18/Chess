@@ -643,6 +643,13 @@ Move* gen_moves(Board *board, int *number) {
 	 * all sliding pieces, when you come to one
 	 * using MSB(), see if the bit is set in ROOK,
 	 * BISHOP, or QUEEN. then add moves accordingly
+	 *
+	 * actually, this can be extended to all piece
+	 * types
+	 *
+	 * now that i think of it, this is WAY more
+	 * efficient than what i am doing now, it minimizes
+	 * calls to MSB(). refactor when you get a chance
 	 */
 	
 	/* KNIGHT MOVES */
@@ -680,12 +687,13 @@ Move* gen_moves(Board *board, int *number) {
 	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
 	while(from > 0) {
 		
-		/*printf("\t>>> FROM = %d\t", from);
-		printf("SHIFTING BY %d <<<\n", rf_to_tlbr[from]); */
+		printf("\nBISHOP @ %d\n", from);
+		/* printf("SHIFTING BY %d <<<\n", rf_to_tlbr[from]); */
 		
 		/* tl_br moves */
-		mask = board->tl_br_positions[me*7 + BISHOP] | board->tl_br_positions[you*7 + BISHOP];
+		mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
 		diag = (unsigned char) (mask >> rf_to_tlbr[from]);
+		printf("from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n", from, rf_to_tlbr[from], (int) diag);
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
@@ -709,14 +717,17 @@ Move* gen_moves(Board *board, int *number) {
 			/* need to convert to: tl_br => rank*8+file */
 			/* note: from is already in rank*8+file */
 			temp = tlbr_to_rf[to];
+			
+			printf("Bt ");
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}
 		
 		
 		/* bl_tr moves */
-		mask = board->bl_tr_positions[me*7 + BISHOP] | board->bl_tr_positions[you*7 + BISHOP];
+		mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
 		diag = (unsigned char) (mask >> rf_to_bltr[from]);
+		printf("from = %d, rf_to_bltr[from] = %d, bl_tr diag = %d\n", from, rf_to_bltr[from], (int) diag);
 		mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
@@ -740,12 +751,14 @@ Move* gen_moves(Board *board, int *number) {
 			/* need to convert to: tl_br => rank*8+file */
 			/* note: from is already in rank*8+file */
 			temp = bltr_to_rf[to];
+			
+			printf("Bb ");
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}
 		
 		
-		from = MSB(board->tl_br_positions[me*7 + BISHOP], 64-from);
+		from = MSB(board->rank_positions[me*7 + BISHOP], 64-from);
 	}
 	
 	

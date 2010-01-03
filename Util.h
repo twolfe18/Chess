@@ -21,7 +21,7 @@ int *rf_to_bltr;
 
 void util_setup() {
 	
-	char r, f, i, width;
+	char r, f, i, width, tlbr, bltr;
 	rf_to_tlbr = (int*) malloc(64*sizeof(int));
 	rf_to_bltr = (int*) malloc(64*sizeof(int));
 	
@@ -33,7 +33,11 @@ void util_setup() {
 	for(width=1; width<=8; width++) {
 		for(f=0; f<width; f++) {
 			r = 7 - (width - f - 1);
-			rf_to_tlbr[(int) r*8+f] = (int) i;
+			
+			/* this number is where the diagnol starts */
+			tlbr = MAX(7-r, f)*(MAX(7-r, f)+1);
+			
+			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
 			tlbr_to_rf[(int) i] = (int) r*8+f;
 			i++;
 		}
@@ -42,7 +46,11 @@ void util_setup() {
 	for(width=7; width>=0; width--) {
 		for(f=0; f<width; f++) {
 			r = width - (7-f) - 1;
-			rf_to_tlbr[(int) r*8+f] = (int) i;
+			
+			/* this number is where the diagnol starts */
+			tlbr = 63 - MAX(7-f, r)*(MAX(7-f, r)+1);
+			
+			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
 			tlbr_to_rf[(int) i] = (int) r*8+f;
 			i++;
 		}
@@ -50,13 +58,18 @@ void util_setup() {
 	if(i != 64)
 		printf("util_setup FAILED!\n");
 		
+	/* THESE TL_BR AND BL_TR NUMBERS NEED TO BE ROUNDED DOWN! */
 		
 	i = 0;
 	/* bottom left of board, including diagnol */
 	for(width=1; width<=8; width++) {
 		for(f=0; f<width; f++) {
 			r = width - f - 1;
-			rf_to_bltr[(int) r*8+f] = (int) i;
+			
+			/* this number is where the diagnol starts */
+			bltr = MAX(f, r)*(MAX(f, r)+1);
+			
+			rf_to_bltr[(int) r*8+f] = (int) bltr;
 			bltr_to_rf[(int) i] = (int) r*8+f;
 			i++;
 		}
@@ -65,7 +78,11 @@ void util_setup() {
 	for(width=7; width>=0; width--) {
 		for(f=0; f<width; f++) {
 			r = 7 - (width - (7-f) - 1);
-			rf_to_bltr[(int) r*8+f] = (int) i;
+			
+			/* this number is where the diagnol starts */
+			bltr = 63 - MAX(7-f, 7-r)*(MAX(7-f, 7-r)+1);
+			
+			rf_to_bltr[(int) r*8+f] = (int) bltr;
 			bltr_to_rf[(int) i] = (int) r*8+f;
 			i++;
 		}
