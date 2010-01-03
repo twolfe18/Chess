@@ -9,7 +9,6 @@
 
 #define SQUARE(X) (1L << (X))
 #define IS_ZERO(BITS, INDEX) ((BITS & 1<<INDEX) == 0)
-#define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 #define CLEAR(bits, index) (bits &= ~(1L << index))
 #define RANK(square) (((int)square/8))
 #define FILE(square) ((square%8))
@@ -22,6 +21,9 @@ long *tl_br_attacks;
 long *bl_tr_attacks;
 long *king_attacks;
 long *knight_attacks;
+
+extern int *tlbr_to_rf;
+extern int *rf_to_tlbr;
 
 void initf(Board *board, char *fen) {
 	int rank, file, i, t;
@@ -454,7 +456,7 @@ long* make_tl_br_attacks() {
 			 * so for convenience, i am going to use standard
 			 * square indexing
 			 */
-			/* sq = rank*8 + file; */
+			sq = rank*8 + file;
 			
 			if(width < 1 || width > 8)
 				printf("[board.tl_br_attacks]\twidth = %d", width);
@@ -617,7 +619,7 @@ long* make_king_attacks() {
 Move* gen_moves(Board *board, int *number) {
 	
 	unsigned long mask;
-	int from, to, me, you, capt, flip, diff;
+	int from, to, me, you, capt, flip;
 	unsigned char push, file, rank, diag;
 	
 	Move *moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
@@ -661,14 +663,12 @@ Move* gen_moves(Board *board, int *number) {
 	
 	/* BISHOP MOVES */
 	/* tl_br moves */
-	/* from = MSB(board->tl_br_positions[me*7 + BISHOP], 0);
+	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
 	while(from > 0) {
 		
 		mask = board->tl_br_positions[me*7 + BISHOP] | board->tl_br_positions[you*7 + BISHOP];
-		
-		diag = (unsigned char) mask[get_tl_br_diag(rank, file)];
-		
-		mask = tl_br_attacks[(rank*8+file)*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
+		diag = (unsigned char) mask[rf_to_tlbr[from]];	
+		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
 		
 		to = MSB(mask, 0);
 		while(to > 0) {
@@ -688,15 +688,15 @@ Move* gen_moves(Board *board, int *number) {
 					capt = PAWN;
 			}
 			
-			diff = to - from;
-			from = from + UP*diff + LEFT*diff;
-			
+			/* need to convert to: tl_br => rank*8+file */
+			/* note: from is already in rank*8+file */
+			to = tlbr_to_rf[to];
 			move_set(&moves[(*number)++], from, to, KNIGHT, capt);
 			to = MSB(mask, 64-to);
 		}
 		
 		from = MSB(board->tl_br_positions[me*7 + BISHOP], 64-from);
-	} */
+	}
 	
 	/* bl_tr moves */
 	
@@ -868,6 +868,7 @@ Move* gen_moves(Board *board, int *number) {
 }
 
 void get_ready() {
+	util_setup();
 	rank_attacks = make_rank_attacks();
 	file_attacks = make_file_attacks();
 	tl_br_attacks = make_tl_br_attacks();
@@ -877,6 +878,7 @@ void get_ready() {
 }
 
 void clean_up() {
+	util_cleanup();
 	free(rank_attacks);
 	free(file_attacks);
 	free(tl_br_attacks);

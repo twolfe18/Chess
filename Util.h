@@ -1,32 +1,37 @@
 
-/* see if i can incorporate this into
- * make_tl_br_attacks
- */
-int get_tl_br_diag(int rank, int file) {
-	int width;
-	if(rank >= file) {
-		width = (7-rank) + file + 1;
-	}
-	else {
-		width = rank + (7-file) + 1;
-	}
-	return width*(width-1);
-}
+#include <stdlib.h>
 
-/* this method is almost the complement of get_tl_br_diag() */
-int tl_br_to_rank_file(int tl_br, int *rank, int *file) {
+#define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
+
+/* this array is for getting the rank*8+file number
+ * given the tl_br number
+ */
+static int *tlbr_to_rf;
+
+/* this array is for getting the tl_br diagnol
+ * given the rank*8+file number
+ *
+ * notice, this is not the exact square, it is
+ * beginning of the diagnol
+ */
+static int *rf_to_tlbr;
+
+void util_setup() {
 	char r, f, i;
-	unsigned char rf_to_tlbr[8][8];
-	unsigned char tlbr_to_rf[64];
+	rf_to_tlbr = (int*) malloc(64*sizeof(int));
+	tlbr_to_rf = (int*) malloc(64*sizeof(int));
 	i = 0;
 	for(r=7; r>=0; r--) {
 		for(f=0; f<8; f++) {
-			rf_to_tlbr[(int)r][(int)f] = i;
-			tlbr_to_rf[(int) i++] = r*8 + f;
+			rf_to_tlbr[(int) r*8+f] = i;
+			tlbr_to_rf[(int) i++] = MAX(r,f)*(MAX(r,f)+1)/2;
 		}
 	}
-	return 0;
-	/* now you can convert either way by looking at the array */
+}
+
+void util_cleanup() {
+	free(tlbr_to_rf);
+	free(rf_to_tlbr);
 }
 
 /* this will get replaced with ASM */
