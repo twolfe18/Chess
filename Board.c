@@ -22,6 +22,7 @@ unsigned long *bl_tr_attacks;
 unsigned long *king_attacks;
 unsigned long *knight_attacks;
 
+/* these are defined in Util.h */
 extern int *tlbr_to_rf;
 extern int *bltr_to_rf;
 extern int *rf_to_tlbr;
@@ -421,7 +422,7 @@ unsigned long* make_rank_attacks() {
 
 unsigned long* make_tl_br_attacks() {
 	
-	int rank, file, width, i, j, sq;
+	int rank, file, width, i, j, sq, tlbr;
 	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
@@ -432,24 +433,12 @@ unsigned long* make_tl_br_attacks() {
 			 */
 			if(rank >= file) {
 				width = (7-rank) + file + 1;
+				tlbr = width*(width-1)/2;
 			}
 			else {
 				width = rank + (7-file) + 1;
+				tlbr = 64 - (width*(width-1)/2 + width);
 			}
-			
-			/* should i keep this in standard form or diagnol */
-			/* i think it should be in diagnol */
-			/* revisit this issue in rank/file attacks */
-			
-			/* for rank/file attacks, each square has the same
-			 * number and width of masks
-			 * for diagnol attacks, each square has varying
-			 * size masks associated with it
-			 * so the definition of square for the diagnol
-			 * arrays matters, but for the rank/files it
-			 * doesn't
-			 */
-			sq = width*(width-1) + file;
 			
 			/* how you index is pretty much arbitrary
 			 * since i have allocated a full 256 possiblities
@@ -462,9 +451,6 @@ unsigned long* make_tl_br_attacks() {
 			 */
 			sq = rank*8 + file;
 			
-			if(width < 1 || width > 8)
-				printf("[board.tl_br_attacks]\twidth = %d", width);
-			
 			/* make a set of bit masks for the
 			 * 2^width configurations
 			 */
@@ -475,23 +461,36 @@ unsigned long* make_tl_br_attacks() {
 				 */
 				r[sq*256 + i] = 0L;
 				
+				
+				/* NOTE
+				 * there is something wrong in this function, check
+				 * it carefully before blaming another part of the
+				 * program. i think it has something to do with
+				 * using j as the offset for tlbr
+				 */
+				
+				
 				/* in configuration i, sq is at place file */
 				j = file - 1;
 				while(j >= 0 && ( (i & (1<<j)) == 0) ) {
-					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					
+					/* this doesn't work when on the bottom right of the board! */
+					/* r[sq*256 + i] |= SQUARE(width*(width-1) + j); */
+					r[sq*256 + i] |= SQUARE(tlbr + j);
+					
 					j--;
 				}
 				if(j >= 0) {
-					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					r[sq*256 + i] |= SQUARE(tlbr + j);
 				}
 				
 				j = file + 1;
 				while(j < width && ( (i & (1<<j)) == 0) ) {
-					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					r[sq*256 + i] |= SQUARE(tlbr + j);
 					j++;
 				}
 				if(j < width) {
-					r[sq*256 + i] |= SQUARE(width*(width-1) + j);
+					r[sq*256 + i] |= SQUARE(tlbr + j);
 				}			
 			}
 			
@@ -726,7 +725,7 @@ Move* gen_moves(Board *board, int *number) {
 			/* note: from is already in rank*8+file */
 			temp = tlbr_to_rf[to];
 			
-			printf("Bt=>%d ", (int) temp);
+			printf("Bt=>[%d,%d] ", (int) temp, (int) to);
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}

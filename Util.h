@@ -19,6 +19,7 @@ int *bltr_to_rf;
 int *rf_to_tlbr;
 int *rf_to_bltr;
 
+/* should be self explanitory... */
 int *rf_to_tlbr_width;
 int *rf_to_bltr_width;
 
