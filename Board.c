@@ -15,12 +15,12 @@
 
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-long *rank_attacks;
-long *file_attacks;
-long *tl_br_attacks;
-long *bl_tr_attacks;
-long *king_attacks;
-long *knight_attacks;
+unsigned long *rank_attacks;
+unsigned long *file_attacks;
+unsigned long *tl_br_attacks;
+unsigned long *bl_tr_attacks;
+unsigned long *king_attacks;
+unsigned long *knight_attacks;
 
 extern int *tlbr_to_rf;
 extern int *bltr_to_rf;
@@ -331,7 +331,7 @@ Move* get_moves(Board *board, int *num_moves) {
 	return NULL;
 }
 
-long* make_file_attacks() {
+unsigned long* make_file_attacks() {
 	
 	/* note: the size of this lookup table can
 	 * be cut by 75% by removing the 2 bits that
@@ -341,7 +341,7 @@ long* make_file_attacks() {
 	 */
 	
 	int rank, file, i, j, k;
-	long* r = (long*) malloc(64*256*sizeof(long));
+	unsigned long* r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
@@ -375,7 +375,7 @@ long* make_file_attacks() {
 	return r;
 }
 
-long* make_rank_attacks() {
+unsigned long* make_rank_attacks() {
 	
 	/* note: the size of this lookup table can
 	 * be cut by 75% by removing the 2 bits that
@@ -385,7 +385,7 @@ long* make_rank_attacks() {
 	 */
 	
 	int rank, file, i, j, k;
-	long* r = (long*) malloc(64*256*sizeof(long));
+	unsigned long* r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
@@ -419,10 +419,10 @@ long* make_rank_attacks() {
 	return r;
 }
 
-long* make_tl_br_attacks() {
+unsigned long* make_tl_br_attacks() {
 	
 	int rank, file, width, i, j, sq;
-	long *r = (long*) malloc(64*256*sizeof(long));
+	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
@@ -500,18 +500,18 @@ long* make_tl_br_attacks() {
 	return r;
 }
 
-long* make_bl_tr_attacks() {
-	long *r = (long*) malloc(64*256*sizeof(long));
+unsigned long* make_bl_tr_attacks() {
+	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	/* TODO */
 	
 	return r;
 }
 
-long* make_knight_attacks() {
+unsigned long* make_knight_attacks() {
 	
 	int rank, file, sq;
-	long *r = (long*) malloc(64*sizeof(long));
+	unsigned long *r = (unsigned long*) malloc(64*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
@@ -564,10 +564,10 @@ long* make_knight_attacks() {
 	return r;
 }
 
-long* make_king_attacks() {
+unsigned long* make_king_attacks() {
 	
 	int rank, file, sq;
-	long *r = (long*) malloc(64*sizeof(long));
+	unsigned long *r = (unsigned long*) malloc(64*sizeof(unsigned long));
 	
 	for(rank=0; rank<8; rank++) {
 		for(file=0; file<8; file++) {
@@ -700,6 +700,8 @@ Move* gen_moves(Board *board, int *number) {
 		diag = (unsigned char) (mask >> rf_to_tlbr[from]) & ((1<<width) - 1);
 		
 		printf("width = %d, from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n", width, from, rf_to_tlbr[from], (int) diag);
+		
+		
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
@@ -724,7 +726,7 @@ Move* gen_moves(Board *board, int *number) {
 			/* note: from is already in rank*8+file */
 			temp = tlbr_to_rf[to];
 			
-			printf("Bt ");
+			printf("Bt=>%d ", (int) temp);
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}

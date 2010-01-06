@@ -41,7 +41,7 @@ void util_setup() {
 			r = 7 - (width - f - 1);
 			
 			/* this number is where the diagnol starts */
-			tlbr = ((7-r)+f+1)*((7-r)+f+1) - ((7-r)+f+1);
+			tlbr = width*(width-1)/2;
 			
 			rf_to_tlbr_width[(int) r*8+f] = width;
 			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
@@ -55,7 +55,7 @@ void util_setup() {
 			r = f - (8-width);
 			
 			/* this number is where the diagnol starts */
-			tlbr = 64 - ((r+(7-f)+1)*(r+(7-f)+1) - (r+(7-f)+1));
+			tlbr = 64 - (width*(width-1)/2 + width);
 			
 			rf_to_tlbr_width[(int) r*8+f] = width;
 			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
@@ -73,7 +73,7 @@ void util_setup() {
 			r = width - f - 1;
 			
 			/* this number is where the diagnol starts */
-			bltr = (r+f+1)*(r+f+1) - (r+f+1);
+			bltr = width*(width-1)/2;
 			
 			rf_to_bltr_width[(int) r*8+f] = width;
 			rf_to_bltr[(int) r*8+f] = (int) bltr;
@@ -87,7 +87,7 @@ void util_setup() {
 			r = 7 - (width - (7-f) - 1);
 			
 			/* this number is where the diagnol starts */
-			bltr = 64 - (((7-r)+(7-f)+1)*((7-r)+(7-f)+1) - ((7-r)+(7-f)+1));
+			bltr = 64 - (width*(width-1)/2 + width);
 			
 			rf_to_bltr_width[(int) r*8+f] = width;
 			rf_to_bltr[(int) r*8+f] = (int) bltr;

@@ -45,31 +45,31 @@ typedef struct {
 	 * board positions are indexed by rank
 	 * from A1 (0), A2 (1), ..., to H8 (63)
 	 */
-	long rank_positions[14];
+	unsigned long rank_positions[14];
 	
 	/* same as above but positions are
 	 * indexed by file from A1 (0),
 	 * B1 (2), ..., H8 (63)
 	 */
-	long file_positions[14];
+	unsigned long file_positions[14];
 	
 	/* this array is a diagnolized board
 	 * where the numbering goes like:
 	 * A8 (0), A7 (1), B8 (2), A6 (3),
 	 * ..., B1 (63)
 	 */
-	long tl_br_positions[14];
+	unsigned long tl_br_positions[14];
 
 	/* this array is a diagnolized board
 	 * where the numbering goes like:
 	 * A1 (0), A2 (1), B1 (2), A3 (3),
 	 * ..., B8 (63)
 	 */
-	long bl_tr_positions[14];
+	unsigned long bl_tr_positions[14];
 	
 	/* highest order bit is either WHITE or
 	 BLACK, lowest 2 bytes are the ply */
-	int ply_and_play;
+	unsigned int ply_and_play;
 	
 	/* these arrays store the positions of the
 	 * pieces. this is convenient for accessing
@@ -152,7 +152,7 @@ void set_ply(Board *board, int ply);
  * so A4 would register as a 1 in the 3rd place, and
  * C5 would register in the 4th place
  */
-long* make_file_attacks();
+unsigned long* make_file_attacks();
 
 /* very similar to make_file_attacks, only
  * you give it an index based on the rank
@@ -163,7 +163,7 @@ long* make_file_attacks();
  * a piece at A4 would register as a one in the
  * 0th place, C5 would register in the 2nd place
  */
-long* make_rank_attacks();
+unsigned long* make_rank_attacks();
 
 /* this function returns an array of possible moves
  * the number of moves returned will be stored in num_moves
@@ -175,25 +175,25 @@ Move* get_moves(Board *board, int *num_moves);
  *
  * array[sq*256 + diagnol_occupancy]
  */
-long* make_tl_br_attacks();
+unsigned long* make_tl_br_attacks();
 
 /* makes an array for bottom-left to top-right sliding
  * pieces. squares are indexed as defined in Board.h
  *
  * array[sq*256 + diagnol_occupancy]
  */
-long* make_bl_tr_attacks();
+unsigned long* make_bl_tr_attacks();
 
 /* makes an array for attacking knights
  * access it via the square you have a knight at:
  *
  * array[sq]
  */
-long* make_knight_attacks();
+unsigned long* make_knight_attacks();
 
 /* makes an array for king attacks
  */
-long* make_king_attacks();
+unsigned long* make_king_attacks();
 
 /* this function returns an array of moves to try in search
  * it stores the number of moves generated in *number

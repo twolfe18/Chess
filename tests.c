@@ -74,7 +74,7 @@ int test_ply(Board *board) {
 }
 
 void stupid_tests() {
-	long mask;
+	unsigned long mask;
 	mask = SQUARE(12);
 	if(mask != (1L<<12))
 		printf("[main.stupid] (1)\tyou're failing the stupid tests!\n");
@@ -87,9 +87,9 @@ void stupid_tests() {
 }
 
 int test_file_attacks() {
-	long mask, expected;
+	unsigned long mask, expected;
 	int status, sq, file;
-	long *fattacks = make_file_attacks();
+	unsigned long *fattacks = make_file_attacks();
 	status = WIN;
 	
 	/* lets assume we queen at D1 (3) and
@@ -138,9 +138,9 @@ int test_file_attacks() {
 }
 
 int test_rank_attacks() {
-	long mask, expected;
+	unsigned long mask, expected;
 	int status, sq, rank;
-	long *rattacks = make_rank_attacks();
+	unsigned long *rattacks = make_rank_attacks();
 	status = WIN;
 	
 	/* lets assume we queen at D1 (3) and
@@ -373,7 +373,7 @@ int test_moves() {
 int main(int argc, const char * argv[]) {
 	
 	stupid_tests();
-	printf("[tests.main]\tsanity check: sizeof(long) = %d\n", (int) sizeof(long));
+	printf("[tests.main]\tsanity check: sizeof(unsigned long) = %d\n", (int) sizeof(unsigned long));
 	
 	printf("[tests.main]\trunning tests....\n");
 	
