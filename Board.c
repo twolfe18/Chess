@@ -26,6 +26,8 @@ extern int *tlbr_to_rf;
 extern int *bltr_to_rf;
 extern int *rf_to_tlbr;
 extern int *rf_to_bltr;
+extern int *rf_to_tlbr_width;
+extern int *rf_to_bltr_width;
 
 void initf(Board *board, char *fen) {
 	int rank, file, i, t;
@@ -621,7 +623,7 @@ long* make_king_attacks() {
 Move* gen_moves(Board *board, int *number) {
 	Move *moves;
 	unsigned long mask;
-	int from, to, me, you, capt, flip, temp;
+	int from, to, me, you, capt, flip, temp, width;
 	unsigned char push, file, rank, diag;
 	
 	printf("=========\n");
@@ -692,8 +694,12 @@ Move* gen_moves(Board *board, int *number) {
 		
 		/* tl_br moves */
 		mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
-		diag = (unsigned char) (mask >> rf_to_tlbr[from]);
-		printf("from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n", from, rf_to_tlbr[from], (int) diag);
+		
+		/* i can mask like this in my array, but not on the board */
+		width = rf_to_tlbr_width[from];
+		diag = (unsigned char) (mask >> rf_to_tlbr[from]) & ((1<<width) - 1);
+		
+		printf("width = %d, from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n", width, from, rf_to_tlbr[from], (int) diag);
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
 		to = MSB(mask, 0);
 		while(to > 0) {
@@ -722,41 +728,6 @@ Move* gen_moves(Board *board, int *number) {
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}
-		
-		
-		/* bl_tr moves */
-		mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
-		diag = (unsigned char) (mask >> rf_to_bltr[from]);
-		printf("from = %d, rf_to_bltr[from] = %d, bl_tr diag = %d\n", from, rf_to_bltr[from], (int) diag);
-		mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
-		to = MSB(mask, 0);
-		while(to > 0) {
-
-			capt = NA;
-			if(board->bl_tr_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->bl_tr_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->bl_tr_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->bl_tr_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->bl_tr_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->bl_tr_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-			}
-			
-			/* need to convert to: tl_br => rank*8+file */
-			/* note: from is already in rank*8+file */
-			temp = bltr_to_rf[to];
-			
-			printf("Bb ");
-			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
-			to = MSB(mask, 64-to);
-		}
-		
 		
 		from = MSB(board->rank_positions[me*7 + BISHOP], 64-from);
 	}
