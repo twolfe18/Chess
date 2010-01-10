@@ -392,7 +392,7 @@ int test_conversions() {
 	int status, expected, x, actual;
 	status = WIN;
 	
-	/* test rf_tl_br */
+	/* test rf_to_tlbr *******************************************************/
 	x = 34;
 	actual = rf_to_tlbr[x];
 	expected = 17;
@@ -432,6 +432,139 @@ int test_conversions() {
 		printf("expected %d, but got %d\n", expected, actual);
 		status = FAIL;
 	}
+	
+	/* test rf_to_tlbr_start *************************************************/
+	x = 56;
+	actual = rf_to_tlbr_start[x];
+	expected = 0;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 0;
+	actual = rf_to_tlbr_start[x];
+	expected = 28;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 16+2;
+	actual = rf_to_tlbr_start[x];
+	expected = 28;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 1;
+	actual = rf_to_tlbr_start[x];
+	expected = 36;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 2;
+	actual = rf_to_tlbr_start[x];
+	expected = 43;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 11;
+	actual = rf_to_tlbr_start[x];
+	expected = 43;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	/* test rf_to_tlbr_width *************************************************/
+	x = 11;
+	actual = rf_to_tlbr_width[x];
+	expected = 6;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 0;
+	actual = rf_to_tlbr_width[x];
+	expected = 8;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 1;
+	actual = rf_to_tlbr_width[x];
+	expected = 7;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 8;
+	actual = rf_to_tlbr_width[x];
+	expected = 7;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 17;
+	actual = rf_to_tlbr_width[x];
+	expected = 7;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	/* test tlbr_to_rf *******************************************************/
+	x = 0;
+	actual = tlbr_to_rf[x];
+	expected = 56;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 1;
+	actual = tlbr_to_rf[x];
+	expected = 48;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 2;
+	actual = tlbr_to_rf[x];
+	expected = 57;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 63;
+	actual = tlbr_to_rf[x];
+	expected = 7;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 62;
+	actual = tlbr_to_rf[x];
+	expected = 15;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	/*************************************************************************/
 	
 	return status;
 }

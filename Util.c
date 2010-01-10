@@ -37,6 +37,7 @@ void util_setup(void) {
 	/* bottom right of board, excluding diagnol */
 	for(width=7; width>=0; width--) {
 		for(f=(8-width); f<8; f++) {
+			
 			r = f - (8-width);
 			
 			/* this number is where the diagnol starts */
@@ -49,10 +50,8 @@ void util_setup(void) {
 			i++;
 		}
 	}
-	if(i != 64)
-		printf("util_setup FAILED!\n");
 	
-	
+
 	/* for now, assume none of this works, just work on tl_br */
 	/* BL_TR */
 	i = 0;
@@ -84,13 +83,14 @@ void util_setup(void) {
 			i++;
 		}
 	}
-	if(i != 64)
-		printf("util_setup FAILED!\n");
+
 }
 
 void util_cleanup(void) {
 	free(tlbr_to_rf);
+	free(bltr_to_rf);
 	free(rf_to_tlbr);
+	free(rf_to_bltr);
 	free(rf_to_tlbr_start);
 	free(rf_to_bltr_start);
 	free(rf_to_tlbr_width);
