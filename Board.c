@@ -656,11 +656,11 @@ Move* gen_moves(Board *board, int *number) {
 	
 	/* KNIGHT MOVES */
 	from = MSB(board->rank_positions[me*7 + KNIGHT], 0);
-	while(from > 0) {
+	while(from >= 0) {
 		
 		mask = knight_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
-		while(to > 0) {
+		while(to >= 0) {
 			capt = NA;
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
 				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
@@ -687,7 +687,7 @@ Move* gen_moves(Board *board, int *number) {
 
 	/* BISHOP MOVES */
 	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
-	while(from > 0) {
+	while(from >= 0) {
 		
 		debug = MSB(board->tl_br_positions[me*7 + BISHOP], 0);
 		printf("\nBISHOP @ [%d, %d, %d]\n", from, debug, tlbr_to_rf[debug]);
@@ -748,14 +748,14 @@ Move* gen_moves(Board *board, int *number) {
 	
 	/* ROOK MOVES */
 	from = MSB(board->rank_positions[me*7 + ROOK], 0);
-	while(from > 0) {
+	while(from >= 0) {
 		
 		/* get the rank moves */
 		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
 		rank = (unsigned char) (mask >> (RANK(from)*8));
 		mask = rank_attacks[from*256 + rank] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
-		while(to > 0) {
+		while(to >= 0) {
 			
 			capt = NA;
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
@@ -783,7 +783,7 @@ Move* gen_moves(Board *board, int *number) {
 		file = (unsigned char) (mask >> (FILE(from)*8));
 		mask = file_attacks[from*256 + file] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
-		while(to > 0) {
+		while(to >= 0) {
 			
 			capt = NA;
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
@@ -812,7 +812,7 @@ Move* gen_moves(Board *board, int *number) {
 	/* KING MOVES */
  	from = MSB(board->rank_positions[me*7 + KING], 0);
 	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
-	while(mask && from > 0) { /* TODO: from > 0 condition is unnecessary in
+	while(mask && from >= 0) { /* TODO: from > 0 condition is unnecessary in
 							   * real game play, just for testing */
 		
 		to = MSB(mask, 0);
@@ -842,7 +842,7 @@ Move* gen_moves(Board *board, int *number) {
 	if(me == WHITE) flip = 1;
 	else flip = -1;
 	from = MSB(board->rank_positions[me*7 + PAWN], 0);
-	while(from > 0) {
+	while(from >= 0) {
 		
 		/* check captures */
 		if((me == WHITE && RANK(from) < 7) || (me == BLACK && RANK(from) > 0)) {
