@@ -371,7 +371,7 @@ int test_moves() {
 	/* try to figure out bishop issue */
 	initf(&b, "8/3/8/2B5/8/8/8/8 w KQkq - 1 2");
 	moves = gen_moves(&b, &num_moves);
-	expected = 0;	/* change this later */
+	expected = 11;
 	if(num_moves != expected) {
 		if(!QUIET) {
 			if(to_play(&b) == WHITE)

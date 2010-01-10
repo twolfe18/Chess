@@ -3,7 +3,7 @@
 
 void util_setup(void) {
 	
-	char r, f, i, width, tlbr;
+	char r, f, i, width, tlbr, bltr;
 	rf_to_tlbr_start = (int*) malloc(64*sizeof(int));
 	rf_to_bltr_start = (int*) malloc(64*sizeof(int));
 	
@@ -17,8 +17,8 @@ void util_setup(void) {
 	rf_to_bltr_width = (int*) malloc(64*sizeof(int));
 	
 	/* TL_BR */
-	i = 0;
 	/* top left of board, including diagnol */
+	i = 0;
 	for(width=1; width<=8; width++) {
 		for(f=0; f<width; f++) {
 			
@@ -47,6 +47,41 @@ void util_setup(void) {
 			rf_to_tlbr_start[(int) r*8+f] = (int) tlbr;
 			tlbr_to_rf[(int) i] = (int) r*8+f;
 			rf_to_tlbr[(int) r*8+f]  = i;
+			i++;
+		}
+	}
+	
+	/* BL_TR */
+	/* bottom left of board, including diagnol */
+	i = 0;
+	for(width=1; width<=8; width++) {
+		for(f=width-1; f>=0; f--) {
+			
+			r = width - f - 1;
+			
+			/* this number is where the diagnol starts */
+			bltr = width*(width-1)/2;
+			
+			rf_to_bltr_width[(int) r*8+f] = width;
+			rf_to_bltr_start[(int) r*8+f] = (int) bltr;
+			bltr_to_rf[(int) i] = (int) r*8+f;
+			rf_to_bltr[(int) r*8+f]  = i;
+			i++;
+		}
+	}
+	/* top right of board, excluding diagnol */
+	for(width=7; width>=0; width--) {
+		for(f=7; f>=8-width; f--) {
+			
+			r = 8 - (width - (7-f));
+			
+			/* this number is where the diagnol starts */
+			bltr = 64 - (width*(width-1)/2 + width);
+			
+			rf_to_bltr_width[(int) r*8+f] = width;
+			rf_to_bltr_start[(int) r*8+f] = (int) bltr;
+			bltr_to_rf[(int) i] = (int) r*8+f;
+			rf_to_bltr[(int) r*8+f]  = i;
 			i++;
 		}
 	}

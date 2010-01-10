@@ -31,7 +31,7 @@ extern int *rf_to_tlbr_width;
 extern int *rf_to_bltr_width;
 
 void initf(Board *board, char *fen) {
-	int rank, file, i, t;
+	int rank, file, i;
 	long r_sq, f_sq, tl_br_sq, bl_tr_sq;
 	char c;
 	
@@ -63,27 +63,8 @@ void initf(Board *board, char *fen) {
 		/* find the rank and file sq number */
 		r_sq = SQUARE(rank*8 + file);
 		f_sq = SQUARE(file*8 + rank);
-		tl_br_sq = rf_to_tlbr[rank*8 + file];
-		
-		/* find the tl_br number 
-		if(rank >= file) {
-			t = MAX(7-rank, file);
-			tl_br_sq = SQUARE(t*(t-1)/2 + file);
-		}
-		else {
-			t = MAX(rank, 7-file);
-			tl_br_sq = SQUARE(63 - (t*(t-1)/2 + 7-file));
-		}*/
-		
-		/* find the bl_tr number */
-		if(rank + file <= 7) {
-			t = MAX(rank, file);
-			bl_tr_sq = SQUARE(t*(t-1)/2 + rank);
-		}
-		else {
-			t = MAX(7-rank, 7-file);
-			bl_tr_sq = SQUARE(63 - (t*(t-1)/2 + 7-rank));
-		}
+		tl_br_sq = SQUARE(rf_to_tlbr[rank*8 + file]);
+		bl_tr_sq = SQUARE(rf_to_bltr[rank*8 + file]);
 		
 		switch(c) {
 			
@@ -462,23 +443,10 @@ unsigned long* make_tl_br_attacks(void) {
 				 */
 				r[sq*256 + i] = 0L;
 				
-				
-				/* NOTE
-				 * there is something wrong in this function, check
-				 * it carefully before blaming another part of the
-				 * program. i think it has something to do with
-				 * using j as the offset for tlbr
-				 */
-				
-				
 				/* in configuration i, sq is at place file */
 				j = (rf_to_tlbr[sq]-tlbr) - 1;
 				while(j >= 0 && ( (i & (1<<j)) == 0) ) {
-					
-					/* this doesn't work when on the bottom right of the board! */
-					/* r[sq*256 + i] |= SQUARE(width*(width-1) + j); */
 					r[sq*256 + i] |= SQUARE(tlbr + j);
-					
 					j--;
 				}
 				if(j >= 0) {
@@ -501,10 +469,58 @@ unsigned long* make_tl_br_attacks(void) {
 }
 
 unsigned long* make_bl_tr_attacks(void) {
+
+	int rank, file, width, i, j, sq, bltr;
 	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
-	/* TODO */
-	
+	for(rank=0; rank<8; rank++) {
+		for(file=0; file<8; file++) {
+			
+			width = rf_to_bltr_width[rank*8 + file];
+			bltr = rf_to_bltr_start[rank*8 + file];
+			
+			/* how you index is pretty much arbitrary
+			 * since i have allocated a full 256 possiblities
+			 * for each square. it would matter if i only used
+			 * the space needed, but that is slightly more
+			 * comlicated (maybe something for later versions)
+			 * 
+			 * so for convenience, i am going to use standard
+			 * square indexing
+			 */
+			sq = rank*8 + file;
+			
+			/* make a set of bit masks for the
+			 * 2^width configurations
+			 */
+			for(i = (1<<width) - 1; i>=0; i--) {
+				
+				/* this addressing system will work,
+				 * but wont be space efficient
+				 */
+				r[sq*256 + i] = 0L;
+				
+				/* in configuration i, sq is at place file */
+				j = (rf_to_bltr[sq]-bltr) - 1;
+				while(j >= 0 && ( (i & (1<<j)) == 0) ) {
+					r[sq*256 + i] |= SQUARE(bltr + j);
+					j--;
+				}
+				if(j >= 0) {
+					r[sq*256 + i] |= SQUARE(bltr + j);
+				}
+				
+				j = (rf_to_bltr[sq]-bltr) + 1;
+				while(j < width && ( (i & (1<<j)) == 0) ) {
+					r[sq*256 + i] |= SQUARE(bltr + j);
+					j++;
+				}
+				if(j < width) {
+					r[sq*256 + i] |= SQUARE(bltr + j);
+				}			
+			}
+		}
+	}
 	return r;
 }
 
@@ -626,8 +642,6 @@ Move* gen_moves(Board *board, int *number) {
 	int from, to, me, you, capt, flip, temp, width, debug;
 	unsigned char push, file, rank, diag;
 	
-	printf("=========\n");
-	
 	moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
 	me = to_play(board);
@@ -661,7 +675,7 @@ Move* gen_moves(Board *board, int *number) {
 		mask = knight_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
 		to = MSB(mask, 0);
 		while(to >= 0) {
-			capt = NA;
+
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
 				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 					capt = QUEEN;
@@ -676,8 +690,8 @@ Move* gen_moves(Board *board, int *number) {
 				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
 			}
+			else capt = NA;
 			
-			printf("N ");
 			move_set(&moves[(*number)++], from, to, KNIGHT, capt);
 			to = MSB(mask, 64-to);
 		}
@@ -688,27 +702,15 @@ Move* gen_moves(Board *board, int *number) {
 	/* BISHOP MOVES */
 	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
 	while(from >= 0) {
-		
-		debug = MSB(board->tl_br_positions[me*7 + BISHOP], 0);
-		printf("\nBISHOP @ [%d, %d, %d]\n", from, debug, tlbr_to_rf[debug]);
-		/* printf("SHIFTING BY %d <<<\n", rf_to_tlbr[from]); */
-		
+
 		/* tl_br moves */
 		mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
-		
-		/* i can mask like this in my array, but not on the board */
 		width = rf_to_tlbr_width[from];
 		diag = (unsigned char) (mask >> rf_to_tlbr_start[from]) & ((1<<width) - 1);
-		
-		printf("width = %d, from = %d, rf_to_tlbr_start[from] = %d, tl_br diag = %d\n",
-			width, from, rf_to_tlbr_start[from], (int) diag);
-		
-		
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
 		to = MSB(mask, 0);
-		while(to > 0) {
+		while(to >= 0) {
 
-			capt = NA;
 			if(board->tl_br_positions[you*7 + ALL] & SQUARE(to)) {
 				if(board->tl_br_positions[you*7 + QUEEN] & SQUARE(to))
 					capt = QUEEN;
@@ -724,24 +726,52 @@ Move* gen_moves(Board *board, int *number) {
 					capt = PAWN;
 				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 			}
+			else capt = NA;
 			
 			/* need to convert to: tl_br => rank*8+file */
 			/* note: from is already in rank*8+file */
 			temp = tlbr_to_rf[to];
+
+			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
+			to = MSB(mask, 64-to);
+		}
+		
+		/* bl_tr moves */
+		mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
+		width = rf_to_bltr_width[from];
+		diag = (unsigned char) (mask >> rf_to_bltr_start[from]) & ((1<<width) - 1);
+		mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
+		to = MSB(mask, 0);
+		
+		while(to >= 0) {
+
+			if(board->bl_tr_positions[you*7 + ALL] & SQUARE(to)) {
+				if(board->bl_tr_positions[you*7 + QUEEN] & SQUARE(to))
+					capt = QUEEN;
+				else if(board->bl_tr_positions[you*7 + KING] & SQUARE(to))
+					capt = KING;
+				else if(board->bl_tr_positions[you*7 + ROOK] & SQUARE(to))
+					capt = ROOK;
+				else if(board->bl_tr_positions[you*7 + BISHOP] & SQUARE(to))
+					capt = BISHOP;
+				else if(board->bl_tr_positions[you*7 + KNIGHT] & SQUARE(to))
+					capt = KNIGHT;
+				else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
+					capt = PAWN;
+				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+			}
+			else capt = NA;
 			
-			printf("Bt=>[%d,%d] ", (int) temp, (int) to);
+			/* need to convert to: tl_br => rank*8+file */
+			/* note: from is already in rank*8+file */
+			temp = bltr_to_rf[to];
+
 			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
 			to = MSB(mask, 64-to);
 		}
 		
 		from = MSB(board->rank_positions[me*7 + BISHOP], 64-from);
 	}
-	
-	
-	
-	
-	
-	
 	
 	/* QUEEN MOVES */
 	
@@ -757,7 +787,6 @@ Move* gen_moves(Board *board, int *number) {
 		to = MSB(mask, 0);
 		while(to >= 0) {
 			
-			capt = NA;
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
 				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 					capt = QUEEN;
@@ -771,9 +800,10 @@ Move* gen_moves(Board *board, int *number) {
 					capt = KNIGHT;
 				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
+				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 			}
+			else capt = NA;
 			
-			printf("Rr ");
 			move_set(&moves[(*number)++], from, to, PAWN, capt);
 			to = MSB(mask, 64-to);
 		}
@@ -785,7 +815,6 @@ Move* gen_moves(Board *board, int *number) {
 		to = MSB(mask, 0);
 		while(to >= 0) {
 			
-			capt = NA;
 			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
 				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 					capt = QUEEN;
@@ -799,9 +828,10 @@ Move* gen_moves(Board *board, int *number) {
 					capt = KNIGHT;
 				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
+				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 			}
+			else capt = NA;
 			
-			printf("Rf ");
 			move_set(&moves[(*number)++], from, to, PAWN, capt);
 			to = MSB(mask, 64-to);
 		}
@@ -817,7 +847,6 @@ Move* gen_moves(Board *board, int *number) {
 		
 		to = MSB(mask, 0);
 		
-		capt = NA;
 		if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
 			if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
 				capt = QUEEN;
@@ -831,9 +860,10 @@ Move* gen_moves(Board *board, int *number) {
 				capt = KNIGHT;
 			else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 				capt = PAWN;
+			else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 		}
+		else capt = NA;
 		
-		printf("K ");
 		move_set(&moves[(*number)++], from, to, KING, capt);
 		CLEAR(mask, to);
 	}
@@ -863,7 +893,6 @@ Move* gen_moves(Board *board, int *number) {
 				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
 				
-				printf("Pcl ");
 				move_set(&moves[(*number)++], from, to, PAWN, capt);
 			}
 			
@@ -883,7 +912,6 @@ Move* gen_moves(Board *board, int *number) {
 				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
 				
-				printf("Pcr ");
 				move_set(&moves[(*number)++], from, to, PAWN, capt);
 			}
 		}
@@ -896,8 +924,7 @@ Move* gen_moves(Board *board, int *number) {
 			!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
 			if((me == WHITE && RANK(from) == 1) || (me == BLACK && RANK(from) == 6))
 				push = 1;
-				
-			printf("P1 ");
+			
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		
@@ -906,8 +933,7 @@ Move* gen_moves(Board *board, int *number) {
 		if(push > 0 && to < 64 && to >= 0 &&
 				!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
 				!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
-					
-			printf("P2 ");
+			
 			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		
