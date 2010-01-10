@@ -392,11 +392,43 @@ int test_conversions() {
 	int status, expected, x, actual;
 	status = WIN;
 	
-	/* test tl_br */
+	/* test rf_tl_br */
 	x = 34;
 	actual = rf_to_tlbr[x];
 	expected = 17;
-	if(x - expected) {
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 35;
+	actual = rf_to_tlbr[x];
+	expected = 24;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 7;
+	actual = rf_to_tlbr[x];
+	expected = 63;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 56;
+	actual = rf_to_tlbr[x];
+	expected = 0;
+	if(actual - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
+	
+	x = 6;
+	actual = rf_to_tlbr[x];
+	expected = 61;
+	if(actual - expected) {
 		printf("expected %d, but got %d\n", expected, actual);
 		status = FAIL;
 	}
@@ -451,8 +483,8 @@ int main(int argc, const char * argv[]) {
 	else printf("[tests.moves]\t\tFAILED!\n");
 	
 	if(WIN == test_conversions())
-		printf("[tests.conversions]\t\tpassed\n");
-	else printf("[tests.conversions]\t\tFAILED!\n");
+		printf("[tests.conversions]\tpassed\n");
+	else printf("[tests.conversions]\tFAILED!\n");
 	
 	clean_up();
 	
