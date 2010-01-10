@@ -472,7 +472,7 @@ unsigned long* make_tl_br_attacks(void) {
 				
 				
 				/* in configuration i, sq is at place file */
-				j = file - 1;
+				j = (rf_to_tlbr[sq]-tlbr) - 1;
 				while(j >= 0 && ( (i & (1<<j)) == 0) ) {
 					
 					/* this doesn't work when on the bottom right of the board! */
@@ -485,7 +485,7 @@ unsigned long* make_tl_br_attacks(void) {
 					r[sq*256 + i] |= SQUARE(tlbr + j);
 				}
 				
-				j = file + 1;
+				j = (rf_to_tlbr[sq]-tlbr) + 1;
 				while(j < width && ( (i & (1<<j)) == 0) ) {
 					r[sq*256 + i] |= SQUARE(tlbr + j);
 					j++;
@@ -698,10 +698,10 @@ Move* gen_moves(Board *board, int *number) {
 		
 		/* i can mask like this in my array, but not on the board */
 		width = rf_to_tlbr_width[from];
-		diag = (unsigned char) (mask >> rf_to_tlbr[from]) & ((1<<width) - 1);
+		diag = (unsigned char) (mask >> rf_to_tlbr_start[from]) & ((1<<width) - 1);
 		
-		printf("width = %d, from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n",
-			width, from, rf_to_tlbr[from], (int) diag);
+		printf("width = %d, from = %d, rf_to_tlbr_start[from] = %d, tl_br diag = %d\n",
+			width, from, rf_to_tlbr_start[from], (int) diag);
 		
 		
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
