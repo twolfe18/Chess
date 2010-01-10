@@ -332,7 +332,7 @@ Move* get_moves(Board *board, int *num_moves) {
 	return NULL;
 }
 
-unsigned long* make_file_attacks() {
+unsigned long* make_file_attacks(void) {
 	
 	/* note: the size of this lookup table can
 	 * be cut by 75% by removing the 2 bits that
@@ -376,7 +376,7 @@ unsigned long* make_file_attacks() {
 	return r;
 }
 
-unsigned long* make_rank_attacks() {
+unsigned long* make_rank_attacks(void) {
 	
 	/* note: the size of this lookup table can
 	 * be cut by 75% by removing the 2 bits that
@@ -420,7 +420,7 @@ unsigned long* make_rank_attacks() {
 	return r;
 }
 
-unsigned long* make_tl_br_attacks() {
+unsigned long* make_tl_br_attacks(void) {
 	
 	int rank, file, width, i, j, sq, tlbr;
 	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
@@ -499,7 +499,7 @@ unsigned long* make_tl_br_attacks() {
 	return r;
 }
 
-unsigned long* make_bl_tr_attacks() {
+unsigned long* make_bl_tr_attacks(void) {
 	unsigned long *r = (unsigned long*) malloc(64*256*sizeof(unsigned long));
 	
 	/* TODO */
@@ -507,7 +507,7 @@ unsigned long* make_bl_tr_attacks() {
 	return r;
 }
 
-unsigned long* make_knight_attacks() {
+unsigned long* make_knight_attacks(void) {
 	
 	int rank, file, sq;
 	unsigned long *r = (unsigned long*) malloc(64*sizeof(unsigned long));
@@ -563,7 +563,7 @@ unsigned long* make_knight_attacks() {
 	return r;
 }
 
-unsigned long* make_king_attacks() {
+unsigned long* make_king_attacks(void) {
 	
 	int rank, file, sq;
 	unsigned long *r = (unsigned long*) malloc(64*sizeof(unsigned long));
@@ -912,7 +912,7 @@ Move* gen_moves(Board *board, int *number) {
 	return moves;
 }
 
-void get_ready() {
+void get_ready(void) {
 	util_setup();
 	rank_attacks = make_rank_attacks();
 	file_attacks = make_file_attacks();
@@ -922,7 +922,7 @@ void get_ready() {
 	knight_attacks = make_knight_attacks();
 }
 
-void clean_up() {
+void clean_up(void) {
 	util_cleanup();
 	free(rank_attacks);
 	free(file_attacks);

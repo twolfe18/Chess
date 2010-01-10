@@ -23,7 +23,7 @@ int *rf_to_bltr;
 int *rf_to_tlbr_width;
 int *rf_to_bltr_width;
 
-void util_setup() {
+void util_setup(void) {
 	
 	char r, f, i, width, tlbr, bltr;
 	rf_to_tlbr = (int*) malloc(64*sizeof(int));
@@ -100,7 +100,7 @@ void util_setup() {
 		printf("util_setup FAILED!\n");
 }
 
-void util_cleanup() {
+void util_cleanup(void) {
 	free(tlbr_to_rf);
 	free(rf_to_tlbr);
 	free(rf_to_tlbr_width);

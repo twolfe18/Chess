@@ -152,7 +152,7 @@ void set_ply(Board *board, int ply);
  * so A4 would register as a 1 in the 3rd place, and
  * C5 would register in the 4th place
  */
-unsigned long* make_file_attacks();
+unsigned long* make_file_attacks(void);
 
 /* very similar to make_file_attacks, only
  * you give it an index based on the rank
@@ -163,7 +163,7 @@ unsigned long* make_file_attacks();
  * a piece at A4 would register as a one in the
  * 0th place, C5 would register in the 2nd place
  */
-unsigned long* make_rank_attacks();
+unsigned long* make_rank_attacks(void);
 
 /* this function returns an array of possible moves
  * the number of moves returned will be stored in num_moves
@@ -175,25 +175,25 @@ Move* get_moves(Board *board, int *num_moves);
  *
  * array[sq*256 + diagnol_occupancy]
  */
-unsigned long* make_tl_br_attacks();
+unsigned long* make_tl_br_attacks(void);
 
 /* makes an array for bottom-left to top-right sliding
  * pieces. squares are indexed as defined in Board.h
  *
  * array[sq*256 + diagnol_occupancy]
  */
-unsigned long* make_bl_tr_attacks();
+unsigned long* make_bl_tr_attacks(void);
 
 /* makes an array for attacking knights
  * access it via the square you have a knight at:
  *
  * array[sq]
  */
-unsigned long* make_knight_attacks();
+unsigned long* make_knight_attacks(void);
 
 /* makes an array for king attacks
  */
-unsigned long* make_king_attacks();
+unsigned long* make_king_attacks(void);
 
 /* this function returns an array of moves to try in search
  * it stores the number of moves generated in *number
@@ -201,10 +201,10 @@ unsigned long* make_king_attacks();
 Move* gen_moves(Board *board, int *number);
 
 /* this basically makes all of the move masks */
-void get_ready();
+void get_ready(void);
 
 /* this basically frees all of the move masks */
-void clean_up();
+void clean_up(void);
 
 /* Most Significant Bit
  * this will get moved...
