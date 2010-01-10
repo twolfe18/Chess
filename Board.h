@@ -206,7 +206,3 @@ void get_ready(void);
 /* this basically frees all of the move masks */
 void clean_up(void);
 
-/* Most Significant Bit
- * this will get moved...
- */
-int MSB(long bits, int offset);

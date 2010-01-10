@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Board.h"
+#include "Util.h"
 
 #define QUIET 0
 
@@ -13,6 +14,9 @@
 
 #define WIN 	1
 #define FAIL 	0
+
+extern int *rf_to_tlbr_start, *rf_to_tlbr_width, *rf_to_tlbr;
+extern int *rf_to_bltr_start, *rf_to_bltr_width, *rf_to_bltr;
 
 int test_to_play(Board *board) {
 	set_play(board, WHITE);
@@ -223,8 +227,6 @@ int test_moves() {
 	status = WIN;
 
 	printf("testing moves");
-
-	get_ready();
 	
 	printf("\tgot ready\n");
 
@@ -365,15 +367,49 @@ int test_moves() {
 	}
 	free(moves);
 
-	clean_up();
+
+	/* try to figure out bishop issue */
+	initf(&b, "8/3/8/2B5/8/8/8/8 w KQkq - 1 2");
+	moves = gen_moves(&b, &num_moves);
+	expected = 0;	/* change this later */
+	if(num_moves != expected) {
+		if(!QUIET) {
+			if(to_play(&b) == WHITE)
+				printf("\t>> WHITE to play, ");
+			else
+				printf("\t>> BLACK to play, ");
+			printf("expected %d moves, but saw %d\n", expected, num_moves);
+			printb(&b);
+		}
+		status = FAIL;
+	}
+	free(moves);
+	
+	return status;
+}
+
+int test_conversions() {
+	int status, expected, x, actual;
+	status = WIN;
+	
+	/* test tl_br */
+	x = 34;
+	actual = rf_to_tlbr[x];
+	expected = 17;
+	if(x - expected) {
+		printf("expected %d, but got %d\n", expected, actual);
+		status = FAIL;
+	}
 	
 	return status;
 }
 
 int main(int argc, const char * argv[]) {
 	
+	get_ready();
 	stupid_tests();
-	printf("[tests.main]\tsanity check: sizeof(unsigned long) = %d\n", (int) sizeof(unsigned long));
+	printf("[tests.main]\tsanity check: sizeof(unsigned long) = %d\n",
+					(int) sizeof(unsigned long));
 	
 	printf("[tests.main]\trunning tests....\n");
 	
@@ -394,13 +430,6 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.rank_attacks]\tpassed\n");
 	else printf("[tests.rank_attacks]\tFAILED!\n");
 	
-	/*** WTF MANG??? ***/
-	printf("OMG MY STUPID TEST\n");
-	Move *moves = (Move*) malloc(80*sizeof(Move));
-	free(moves);
-	printf("worked this time!\n");
-	/*******************/
-	
 	if(WIN == test_initf())
 		printf("[tests.initf]\t\tpassed\n");
 	else printf("[tests.initf]\t\tFAILED!\n");
@@ -420,6 +449,12 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_moves())
 		printf("[tests.moves]\t\tpassed\n");
 	else printf("[tests.moves]\t\tFAILED!\n");
+	
+	if(WIN == test_conversions())
+		printf("[tests.conversions]\t\tpassed\n");
+	else printf("[tests.conversions]\t\tFAILED!\n");
+	
+	clean_up();
 	
 	printf("\n[tests.main]\t\ttests complete\n");
 	return EXIT_SUCCESS;

@@ -12,12 +12,13 @@ int *bltr_to_rf;
 
 /* this array is for getting the tl_br diagnol
  * given the rank*8+file number
- *
- * notice, this is not the exact square, it is
- * beginning of the diagnol
  */
 int *rf_to_tlbr;
 int *rf_to_bltr;
+
+/* these are for determining the start of a diagnol */
+int *rf_to_tlbr_start;
+int *rf_to_bltr_start;
 
 /* should be self explanitory... */
 int *rf_to_tlbr_width;
@@ -26,27 +27,33 @@ int *rf_to_bltr_width;
 void util_setup(void) {
 	
 	char r, f, i, width, tlbr, bltr;
-	rf_to_tlbr = (int*) malloc(64*sizeof(int));
-	rf_to_bltr = (int*) malloc(64*sizeof(int));
+	rf_to_tlbr_start = (int*) malloc(64*sizeof(int));
+	rf_to_bltr_start = (int*) malloc(64*sizeof(int));
 	
 	tlbr_to_rf = (int*) malloc(64*sizeof(int));
 	bltr_to_rf = (int*) malloc(64*sizeof(int));
 	
+	rf_to_tlbr = (int*) malloc(64*sizeof(int));
+	rf_to_bltr = (int*) malloc(64*sizeof(int));
+	
 	rf_to_tlbr_width = (int*) malloc(64*sizeof(int));
 	rf_to_bltr_width = (int*) malloc(64*sizeof(int));
 	
+	/* TL_BR */
 	i = 0;
 	/* top left of board, including diagnol */
 	for(width=1; width<=8; width++) {
 		for(f=0; f<width; f++) {
+			
 			r = 7 - (width - f - 1);
 			
 			/* this number is where the diagnol starts */
 			tlbr = width*(width-1)/2;
 			
 			rf_to_tlbr_width[(int) r*8+f] = width;
-			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
+			rf_to_tlbr_start[(int) r*8+f] = (int) tlbr;
 			tlbr_to_rf[(int) i] = (int) r*8+f;
+			rf_to_tlbr[(int) r*8+f]  = i;
 			i++;
 		}
 	}
@@ -59,14 +66,18 @@ void util_setup(void) {
 			tlbr = 64 - (width*(width-1)/2 + width);
 			
 			rf_to_tlbr_width[(int) r*8+f] = width;
-			rf_to_tlbr[(int) r*8+f] = (int) tlbr;
+			rf_to_tlbr_start[(int) r*8+f] = (int) tlbr;
 			tlbr_to_rf[(int) i] = (int) r*8+f;
+			rf_to_tlbr[(int) r*8+f]  = i;
 			i++;
 		}
 	}
 	if(i != 64)
 		printf("util_setup FAILED!\n");
-			
+	
+	
+	/* for now, assume none of this works, just work on tl_br */
+	/* BL_TR */
 	i = 0;
 	/* bottom left of board, including diagnol */
 	for(width=1; width<=8; width++) {
@@ -103,6 +114,8 @@ void util_setup(void) {
 void util_cleanup(void) {
 	free(tlbr_to_rf);
 	free(rf_to_tlbr);
+	free(rf_to_tlbr_start);
+	free(rf_to_bltr_start);
 	free(rf_to_tlbr_width);
 	free(rf_to_bltr_width);
 }

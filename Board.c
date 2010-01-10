@@ -63,18 +63,19 @@ void initf(Board *board, char *fen) {
 		/* find the rank and file sq number */
 		r_sq = SQUARE(rank*8 + file);
 		f_sq = SQUARE(file*8 + rank);
+		tl_br_sq = rf_to_tlbr[rank*8 + file];
 		
-		/* find the tl_br number */
+		/* find the tl_br number 
 		if(rank >= file) {
-			t = MAX(rank-7, file);
+			t = MAX(7-rank, file);
 			tl_br_sq = SQUARE(t*(t-1)/2 + file);
 		}
 		else {
 			t = MAX(rank, 7-file);
 			tl_br_sq = SQUARE(63 - (t*(t-1)/2 + 7-file));
-		}
+		}*/
 		
-		/* find the br_tl number */
+		/* find the bl_tr number */
 		if(rank + file <= 7) {
 			t = MAX(rank, file);
 			bl_tr_sq = SQUARE(t*(t-1)/2 + rank);
@@ -622,7 +623,7 @@ unsigned long* make_king_attacks(void) {
 Move* gen_moves(Board *board, int *number) {
 	Move *moves;
 	unsigned long mask;
-	int from, to, me, you, capt, flip, temp, width;
+	int from, to, me, you, capt, flip, temp, width, debug;
 	unsigned char push, file, rank, diag;
 	
 	printf("=========\n");
@@ -688,7 +689,8 @@ Move* gen_moves(Board *board, int *number) {
 	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
 	while(from > 0) {
 		
-		printf("\nBISHOP @ %d\n", from);
+		debug = MSB(board->tl_br_positions[me*7 + BISHOP], 0);
+		printf("\nBISHOP @ [%d, %d, %d]\n", from, debug, tlbr_to_rf[debug]);
 		/* printf("SHIFTING BY %d <<<\n", rf_to_tlbr[from]); */
 		
 		/* tl_br moves */
@@ -698,7 +700,8 @@ Move* gen_moves(Board *board, int *number) {
 		width = rf_to_tlbr_width[from];
 		diag = (unsigned char) (mask >> rf_to_tlbr[from]) & ((1<<width) - 1);
 		
-		printf("width = %d, from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n", width, from, rf_to_tlbr[from], (int) diag);
+		printf("width = %d, from = %d, rf_to_tlbr[from] = %d, tl_br diag = %d\n",
+			width, from, rf_to_tlbr[from], (int) diag);
 		
 		
 		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
@@ -719,6 +722,7 @@ Move* gen_moves(Board *board, int *number) {
 					capt = KNIGHT;
 				else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
 					capt = PAWN;
+				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 			}
 			
 			/* need to convert to: tl_br => rank*8+file */
