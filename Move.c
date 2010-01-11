@@ -40,3 +40,10 @@ void apply_move(Board *board, Move *move) {
 	else set_play(board, WHITE);
 	
 }
+
+void undo_move(Board *board, Move *move) {
+	
+	
+	/* TODO */
+	
+}

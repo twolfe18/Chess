@@ -18,3 +18,6 @@ void move_set(Move *move, int from, int to, int moving, int caputuring);
 
 /* applies a move to a board */
 void apply_move(Board *board, Move *move);
+
+/* un-does a move */
+void undo_move(Board *board, Move *move);
