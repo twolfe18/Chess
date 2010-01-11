@@ -639,305 +639,409 @@ unsigned long* make_king_attacks(void) {
 Move* gen_moves(Board *board, int *number) {
 	Move *moves;
 	unsigned long mask;
-	int from, to, me, you, capt, flip, temp, width, debug;
+	int from, to, me, you, capt, flip, temp, width;
 	unsigned char push, file, rank, diag;
 	
 	moves = (Move*) malloc(MAX_MOVES*sizeof(Move));
 	*number = 0;
+	capt = NA;
 	me = to_play(board);
 	you = 1 - me;
-	
-	/* these are just to prevent gcc from giving me warnings */
-	to = 0;
-	capt = NA;
-	diag = 0;
-	mask = 0L;
-	temp = 0;
-	
-	/* a random note on efficiency:
-	 * it may be a good idea to iterate through
-	 * all sliding pieces, when you come to one
-	 * using MSB(), see if the bit is set in ROOK,
-	 * BISHOP, or QUEEN. then add moves accordingly
-	 *
-	 * actually, this can be extended to all piece
-	 * types
-	 *
-	 * now that i think of it, this is WAY more
-	 * efficient than what i am doing now, it minimizes
-	 * calls to MSB(). refactor when you get a chance
-	 */
-	
-	/* KNIGHT MOVES */
-	from = MSB(board->rank_positions[me*7 + KNIGHT], 0);
-	while(from >= 0) {
-		
-		mask = knight_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
-		to = MSB(mask, 0);
-		while(to >= 0) {
-
-			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-			}
-			else capt = NA;
-			
-			move_set(&moves[(*number)++], from, to, KNIGHT, capt);
-			to = MSB(mask, 64-to);
-		}
-		
-		from = MSB(board->rank_positions[me*7 + KNIGHT], 64-from);
-	}
-
-	/* BISHOP MOVES */
-	from = MSB(board->rank_positions[me*7 + BISHOP], 0);
-	while(from >= 0) {
-
-		/* tl_br moves */
-		mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
-		width = rf_to_tlbr_width[from];
-		diag = (unsigned char) (mask >> rf_to_tlbr_start[from]) & ((1<<width) - 1);
-		mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
-		to = MSB(mask, 0);
-		while(to >= 0) {
-
-			if(board->tl_br_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->tl_br_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->tl_br_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->tl_br_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->tl_br_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->tl_br_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
-			}
-			else capt = NA;
-			
-			/* need to convert to: tl_br => rank*8+file */
-			/* note: from is already in rank*8+file */
-			temp = tlbr_to_rf[to];
-
-			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
-			to = MSB(mask, 64-to);
-		}
-		
-		/* bl_tr moves */
-		mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
-		width = rf_to_bltr_width[from];
-		diag = (unsigned char) (mask >> rf_to_bltr_start[from]) & ((1<<width) - 1);
-		mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
-		to = MSB(mask, 0);
-		
-		while(to >= 0) {
-
-			if(board->bl_tr_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->bl_tr_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->bl_tr_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->bl_tr_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->bl_tr_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->bl_tr_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
-			}
-			else capt = NA;
-			
-			/* need to convert to: tl_br => rank*8+file */
-			/* note: from is already in rank*8+file */
-			temp = bltr_to_rf[to];
-
-			move_set(&moves[(*number)++], from, temp, BISHOP, capt);
-			to = MSB(mask, 64-to);
-		}
-		
-		from = MSB(board->rank_positions[me*7 + BISHOP], 64-from);
-	}
-	
-	/* QUEEN MOVES */
-	
-	
-	/* ROOK MOVES */
-	from = MSB(board->rank_positions[me*7 + ROOK], 0);
-	while(from >= 0) {
-		
-		/* get the rank moves */
-		mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
-		rank = (unsigned char) (mask >> (RANK(from)*8));
-		mask = rank_attacks[from*256 + rank] & ~(board->rank_positions[me*7 + ALL]);
-		to = MSB(mask, 0);
-		while(to >= 0) {
-			
-			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
-			}
-			else capt = NA;
-			
-			move_set(&moves[(*number)++], from, to, PAWN, capt);
-			to = MSB(mask, 64-to);
-		}
-		
-		/* get the file moves */
-		mask = board->file_positions[me*7 + ALL] | board->file_positions[you*7 + ALL];
-		file = (unsigned char) (mask >> (FILE(from)*8));
-		mask = file_attacks[from*256 + file] & ~(board->rank_positions[me*7 + ALL]);
-		to = MSB(mask, 0);
-		while(to >= 0) {
-			
-			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
-			}
-			else capt = NA;
-			
-			move_set(&moves[(*number)++], from, to, PAWN, capt);
-			to = MSB(mask, 64-to);
-		}
-		
-		from = MSB(board->rank_positions[me*7 + ROOK], 64-from);
-	}
-
-	/* KING MOVES */
- 	from = MSB(board->rank_positions[me*7 + KING], 0);
-	mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
-	while(mask && from >= 0) { /* TODO: from > 0 condition is unnecessary in
-							   * real game play, just for testing */
-		
-		to = MSB(mask, 0);
-		
-		if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-			if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-				capt = QUEEN;
-			else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-				capt = KING;
-			else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-				capt = ROOK;
-			else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-				capt = BISHOP;
-			else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-				capt = KNIGHT;
-			else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-				capt = PAWN;
-			else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
-		}
-		else capt = NA;
-		
-		move_set(&moves[(*number)++], from, to, KING, capt);
-		CLEAR(mask, to);
-	}
-	
-	/* PAWN MOVES */
 	if(me == WHITE) flip = 1;
 	else flip = -1;
-	from = MSB(board->rank_positions[me*7 + PAWN], 0);
+	
+	/* go through each piece and generate moves for it */
+	from = MSB(board->rank_positions[me*7 + ALL], 0);
 	while(from >= 0) {
 		
-		/* check captures */
-		if((me == WHITE && RANK(from) < 7) || (me == BLACK && RANK(from) > 0)) {
-			
-			/* forward, left */
-			to = from + UP*flip + LEFT;
-			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				
-				move_set(&moves[(*number)++], from, to, PAWN, capt);
-			}
-			
-			/* forward, right */
-			to = from + UP*flip + RIGHT;
-			if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
-				if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
-					capt = QUEEN;
-				else if(board->rank_positions[you*7 + KING] & SQUARE(to))
-					capt = KING;
-				else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
-					capt = ROOK;
-				else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
-					capt = BISHOP;
-				else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
-					capt = KNIGHT;
-				else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
-					capt = PAWN;
-				
-				move_set(&moves[(*number)++], from, to, PAWN, capt);
+		/* KNIGHT MOVES */
+		if(board->rank_positions[me*7 + KNIGHT] & SQUARE(from)) {
+			mask = knight_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, KNIGHT, capt);
+				to = MSB(mask, 64-to);
 			}
 		}
 		
-		/* check single push */
-		push = 0;
-		to = from + UP*flip;
-		if(to < 64 && to >= 0 &&
-			!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
-			!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
-			if((me == WHITE && RANK(from) == 1) || (me == BLACK && RANK(from) == 6))
-				push = 1;
+		/* BISHOP MOVES */
+		else if(board->rank_positions[me*7 + BISHOP] & SQUARE(from)) {
 			
-			move_set(&moves[(*number)++], from, to, PAWN, NA);
+			/* tl_br moves */
+			mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
+			width = rf_to_tlbr_width[from];
+			diag = (unsigned char) (mask >> rf_to_tlbr_start[from]) & ((1<<width) - 1);
+			mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->tl_br_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->tl_br_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->tl_br_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->tl_br_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->tl_br_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->tl_br_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				/* need to convert to: tl_br => rank*8+file */
+				/* note: from is already in rank*8+file */
+				temp = tlbr_to_rf[to];
+
+				move_set(&moves[(*number)++], from, temp, BISHOP, capt);
+				to = MSB(mask, 64-to);
+			}
+
+			/* bl_tr moves */
+			mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
+			width = rf_to_bltr_width[from];
+			diag = (unsigned char) (mask >> rf_to_bltr_start[from]) & ((1<<width) - 1);
+			mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
+			to = MSB(mask, 0);
+
+			while(to >= 0) {
+
+				if(board->bl_tr_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->bl_tr_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->bl_tr_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->bl_tr_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->bl_tr_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->bl_tr_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				/* need to convert to: tl_br => rank*8+file */
+				/* note: from is already in rank*8+file */
+				temp = bltr_to_rf[to];
+
+				move_set(&moves[(*number)++], from, temp, BISHOP, capt);
+				to = MSB(mask, 64-to);
+			}
 		}
 		
-		/* check double push */
-		to = from + 2*UP*flip;
-		if(push > 0 && to < 64 && to >= 0 &&
+		/* QUEEN MOVES */
+		else if(board->rank_positions[me*7 + QUEEN] & SQUARE(from)) {
+			
+			/* tl_br moves */
+			mask = board->tl_br_positions[me*7 + ALL] | board->tl_br_positions[you*7 + ALL];
+			width = rf_to_tlbr_width[from];
+			diag = (unsigned char) (mask >> rf_to_tlbr_start[from]) & ((1<<width) - 1);
+			mask = tl_br_attacks[from*256 + diag] & ~(board->tl_br_positions[me*7+ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->tl_br_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->tl_br_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->tl_br_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->tl_br_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->tl_br_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->tl_br_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				/* need to convert to: tl_br => rank*8+file */
+				/* note: from is already in rank*8+file */
+				temp = tlbr_to_rf[to];
+
+				move_set(&moves[(*number)++], from, temp, QUEEN, capt);
+				to = MSB(mask, 64-to);
+			}
+
+			/* bl_tr moves */
+			mask = board->bl_tr_positions[me*7 + ALL] | board->bl_tr_positions[you*7 + ALL];
+			width = rf_to_bltr_width[from];
+			diag = (unsigned char) (mask >> rf_to_bltr_start[from]) & ((1<<width) - 1);
+			mask = bl_tr_attacks[from*256 + diag] & ~(board->bl_tr_positions[me*7+ALL]);
+			to = MSB(mask, 0);
+
+			while(to >= 0) {
+
+				if(board->bl_tr_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->bl_tr_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->bl_tr_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->bl_tr_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->bl_tr_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->bl_tr_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				/* need to convert to: tl_br => rank*8+file */
+				/* note: from is already in rank*8+file */
+				temp = bltr_to_rf[to];
+
+				move_set(&moves[(*number)++], from, temp, QUEEN, capt);
+				to = MSB(mask, 64-to);
+			}
+			
+			/* rank moves */
+			mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
+			rank = (unsigned char) (mask >> (RANK(from)*8));
+			mask = rank_attacks[from*256 + rank] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, QUEEN, capt);
+				to = MSB(mask, 64-to);
+			}
+
+			/* file moves */
+			mask = board->file_positions[me*7 + ALL] | board->file_positions[you*7 + ALL];
+			file = (unsigned char) (mask >> (FILE(from)*8));
+			mask = file_attacks[from*256 + file] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, QUEEN, capt);
+				to = MSB(mask, 64-to);
+			}
+			
+		}
+		
+		/* PAWN MOVES */
+		else if(board->rank_positions[me*7 + PAWN] & SQUARE(from)) {
+			
+			/* check captures */
+			if((me == WHITE && RANK(from) < 7) || (me == BLACK && RANK(from) > 0)) {
+
+				/* forward, left */
+				to = from + UP*flip + LEFT;
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+
+					move_set(&moves[(*number)++], from, to, PAWN, capt);
+				}
+
+				/* forward, right */
+				to = from + UP*flip + RIGHT;
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+
+					move_set(&moves[(*number)++], from, to, PAWN, capt);
+				}
+			}
+
+			/* check single push */
+			push = 0;
+			to = from + UP*flip;
+			if(to < 64 && to >= 0 &&
 				!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
 				!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
+				if((me == WHITE && RANK(from) == 1) || (me == BLACK && RANK(from) == 6))
+					push = 1;
+
+				move_set(&moves[(*number)++], from, to, PAWN, NA);
+			}
+
+			/* check double push */
+			to = from + 2*UP*flip;
+			if(push > 0 && to < 64 && to >= 0 &&
+					!(board->rank_positions[you*7 + ALL] & SQUARE(to)) &&
+					!(board->rank_positions[me*7 + ALL] & SQUARE(to))) {
+
+				move_set(&moves[(*number)++], from, to, PAWN, NA);
+			}
 			
-			move_set(&moves[(*number)++], from, to, PAWN, NA);
 		}
 		
-		from = MSB(board->rank_positions[me*7 + PAWN], 64-from);
+		/* ROOK MOVES */
+		else if(board->rank_positions[me*7 + ROOK] & SQUARE(from)) {
+			
+			/* get the rank moves */
+			mask = board->rank_positions[me*7 + ALL] | board->rank_positions[you*7 + ALL];
+			rank = (unsigned char) (mask >> (RANK(from)*8));
+			mask = rank_attacks[from*256 + rank] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, ROOK, capt);
+				to = MSB(mask, 64-to);
+			}
+
+			/* get the file moves */
+			mask = board->file_positions[me*7 + ALL] | board->file_positions[you*7 + ALL];
+			file = (unsigned char) (mask >> (FILE(from)*8));
+			mask = file_attacks[from*256 + file] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, ROOK, capt);
+				to = MSB(mask, 64-to);
+			}
+			
+		}
+		
+		/* KING MOVES */
+		else if(board->rank_positions[me*7 + KING] & SQUARE(from)) {
+			
+			/* note, there is only one king on the board... */
+			mask = king_attacks[from] & ~(board->rank_positions[me*7 + ALL]);
+			to = MSB(mask, 0);
+			while(to >= 0) {
+				if(board->rank_positions[you*7 + ALL] & SQUARE(to)) {
+					if(board->rank_positions[you*7 + QUEEN] & SQUARE(to))
+						capt = QUEEN;
+					else if(board->rank_positions[you*7 + KING] & SQUARE(to))
+						capt = KING;
+					else if(board->rank_positions[you*7 + ROOK] & SQUARE(to))
+						capt = ROOK;
+					else if(board->rank_positions[you*7 + BISHOP] & SQUARE(to))
+						capt = BISHOP;
+					else if(board->rank_positions[you*7 + KNIGHT] & SQUARE(to))
+						capt = KNIGHT;
+					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
+						capt = PAWN;
+					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+				}
+				else capt = NA;
+
+				move_set(&moves[(*number)++], from, to, KING, capt);
+				to = MSB(mask, 64-to);
+			}
+		}
+		
+		/* or, something went wrong */
+		else printf("\n\n\nFAIL\tFAIL\tFAIL\tFAIL\tFAIL\tFAIL\tFAIL\t\n");
+		
+		from = MSB(board->rank_positions[me*7 + ALL], 64-from);
 	}
 	return moves;
 }
