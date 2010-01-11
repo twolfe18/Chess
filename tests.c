@@ -9,9 +9,6 @@
 
 #define QUIET 0
 
-#define SQUARE(X) (1L << (X))
-#define puts(X) printf(X); printf("\n");
-
 #define WIN 	1
 #define FAIL 	0
 
@@ -225,10 +222,6 @@ int test_moves() {
 	Move *moves;
 	int status, num_moves, expected;
 	status = WIN;
-
-	printf("testing moves");
-	
-	printf("\tgot ready\n");
 
 	/* on startup, there shouldn't be any king moves */
 	setup(&b);
@@ -569,6 +562,39 @@ int test_conversions() {
 	return status;
 }
 
+int test_apply_move() {
+	int status, num_moves, i;
+	Board board;
+	Move *moves;
+	status = WIN;
+	num_moves = 0;
+	setup(&board);
+	printb(&board);
+	moves = gen_moves(&board, &num_moves);
+	printf("found %d moves\n", num_moves);
+	for(i=0; i<1 && i<num_moves; i++) {
+		printf("board after move %d looks like:\n", i+1);
+		apply_move(&board, &moves[i]);
+		printb(&board);
+	}
+	
+	return status;
+}
+
+int test_search() {
+	Board b;
+	Move *moves;
+	int status, depth, val;
+	status = WIN;
+
+	setup(&b);
+	depth = 2;
+	val = scout(&b, -10000, 10000, depth);
+	printf("negascout after depth %d came out as %d\n", depth, val);
+	
+	return WIN;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	get_ready();
@@ -618,6 +644,16 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_conversions())
 		printf("[tests.conversions]\tpassed\n");
 	else printf("[tests.conversions]\tFAILED!\n");
+	
+	if(WIN == test_apply_move())
+		printf("[tests.apply_move]\tpassed\n");
+	else printf("[tests.apply_move]\tFAILED!\n");
+	
+	/*
+	if(WIN == test_search())
+		printf("[tests.search]\t\tpassed\n");
+	else printf("[tests.search]\t\tFAILED!\n");
+	*/
 	
 	clean_up();
 	

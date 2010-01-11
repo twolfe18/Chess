@@ -7,12 +7,6 @@
 
 #define VERBOSE 0
 
-#define SQUARE(X) (1L << (X))
-#define IS_ZERO(BITS, INDEX) ((BITS & 1<<INDEX) == 0)
-#define CLEAR(bits, index) (bits &= ~(1L << index))
-#define RANK(square) (((int)square/8))
-#define FILE(square) ((square%8))
-
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 unsigned long *rank_attacks;
@@ -705,7 +699,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves1]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -739,7 +733,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves2]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -776,7 +770,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->tl_br_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves3]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -810,7 +804,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->bl_tr_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves4]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -842,7 +836,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves5]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -870,7 +864,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves6]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -971,7 +965,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves7]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -999,7 +993,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves8]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -1029,7 +1023,7 @@ Move* gen_moves(Board *board, int *number) {
 						capt = KNIGHT;
 					else if(board->rank_positions[you*7 + PAWN] & SQUARE(to))
 						capt = PAWN;
-					else printf("\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
+					else printf("\n[gen_moves9]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 				}
 				else capt = NA;
 
@@ -1039,11 +1033,42 @@ Move* gen_moves(Board *board, int *number) {
 		}
 		
 		/* or, something went wrong */
-		else printf("\n\n\nFAIL\tFAIL\tFAIL\tFAIL\tFAIL\tFAIL\tFAIL\t\n");
+		else printf("\n[gen_moves10]\nFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\tFAIL!\n\n");
 		
 		from = MSB(board->rank_positions[me*7 + ALL], 64-from);
 	}
 	return moves;
+}
+
+void place_piece(Board *board, int color, int type, int rf_sq) {
+	
+	int rank, file, tlbr, bltr, i;
+	
+	file = rf_sq % 8;
+	rank = (rf_sq - file)/8;
+	tlbr = rf_to_tlbr[rf_sq];
+	bltr = rf_to_bltr[rf_sq];
+	
+	/* NA will clear rf_sq */
+	if(type == NA) {
+		for(i=0; i<7; i++) {
+			board->rank_positions[color*7 + i] &= ~(SQUARE(rf_sq));
+			board->file_positions[color*7 + i] &= ~(SQUARE(file*8 + rank));
+			board->tl_br_positions[color*7 + i] &= ~(SQUARE(tlbr));
+			board->bl_tr_positions[color*7 + i] &= ~(SQUARE(bltr));
+		}
+	}
+	else {
+		board->rank_positions[color*7 + type] |= SQUARE(rf_sq);
+		board->file_positions[color*7 + type] |= SQUARE(file*8 + rank);
+		board->tl_br_positions[color*7 + type] |= SQUARE(tlbr);
+		board->bl_tr_positions[color*7 + type] |= SQUARE(bltr);
+		
+		board->rank_positions[color*7 + ALL] |= SQUARE(rf_sq);
+		board->file_positions[color*7 + ALL] |= SQUARE(file*8 + rank);
+		board->tl_br_positions[color*7 + ALL] |= SQUARE(tlbr);
+		board->bl_tr_positions[color*7 + ALL] |= SQUARE(bltr);
+	}
 }
 
 void get_ready(void) {
