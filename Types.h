@@ -4,7 +4,7 @@
 #define WHITE	0
 #define BLACK	1
 
-#define NA		-1
+#define NA		7
 #define KING	0
 #define QUEEN	1
 #define ROOK	2

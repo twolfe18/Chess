@@ -4,6 +4,6 @@
  */
 
 #include <stdlib.h>
-#include "Board.h"
+#include "Types.h"
 
 int eval(Board *board);

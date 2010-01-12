@@ -572,10 +572,14 @@ int test_apply_move() {
 	printb(&board);
 	moves = gen_moves(&board, &num_moves);
 	printf("found %d moves\n", num_moves);
-	for(i=0; i<1 && i<num_moves; i++) {
+	for(i=0; i<35 && i<num_moves; i++) {
+		printf("move %d: %d is moving from %d to %d, capturing %d\n",
+			i, moving_type(moves[i]), moves[i].from,
+			moves[i].to, capturing_type(moves[i]));
 		printf("board after move %d looks like:\n", i+1);
-		apply_move(&board, &moves[i]);
+		apply_move(&board, moves[i]);
 		printb(&board);
+		undo_move(&board, moves[i]);
 	}
 	
 	return status;
@@ -583,7 +587,6 @@ int test_apply_move() {
 
 int test_search() {
 	Board b;
-	Move *moves;
 	int status, depth, val;
 	status = WIN;
 
@@ -598,6 +601,7 @@ int test_search() {
 int main(int argc, const char * argv[]) {
 	
 	get_ready();
+	
 	stupid_tests();
 	printf("[tests.main]\tsanity check: sizeof(unsigned long) = %d\n",
 					(int) sizeof(unsigned long));
@@ -649,11 +653,9 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.apply_move]\tpassed\n");
 	else printf("[tests.apply_move]\tFAILED!\n");
 	
-	/*
 	if(WIN == test_search())
 		printf("[tests.search]\t\tpassed\n");
 	else printf("[tests.search]\t\tFAILED!\n");
-	*/
 	
 	clean_up();
 	

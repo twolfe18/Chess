@@ -303,11 +303,6 @@ void set_play(Board *board, int color) {
 	board->ply_and_play = color << offset;
 }
 
-Move* get_moves(Board *board, int *num_moves) {
-	
-	return NULL;
-}
-
 unsigned long* make_file_attacks(void) {
 	
 	/* note: the size of this lookup table can

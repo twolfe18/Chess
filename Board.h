@@ -54,11 +54,6 @@ unsigned long* make_file_attacks(void);
  */
 unsigned long* make_rank_attacks(void);
 
-/* this function returns an array of possible moves
- * the number of moves returned will be stored in num_moves
- */
-Move* get_moves(Board *board, int *num_moves);
-
 /* makes an array for top-left to bottom-right sliding
  * pieces. squares are indexed as defined in Board.h
  *
