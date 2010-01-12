@@ -9,8 +9,6 @@
 #define KING_VAL 5000
 
 int eval(Board *board) {
-	
-	printf("evaluating\n");
 
 	unsigned long mask;
 	int val, pos;

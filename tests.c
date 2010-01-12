@@ -598,10 +598,45 @@ int test_search() {
 	return WIN;
 }
 
+int test_scout() {
+	Board b, orig;
+	Move *moves, *omoves;
+	int status, i, j, n, m;
+	status = WIN;
+	
+	printf("testing scout\n");
+	setup(&b);
+	setup(&orig);
+	printb(&b);
+
+	moves = gen_moves(&b, &n);
+	for(i=0; i<n && i<5; i++) {
+		printf("=============================================\napplying move %d\n", i+1);
+		apply_move(&b, moves[i]);
+		
+		omoves = gen_moves(&b, &m);
+		for(j=0; j<m && j<5; j++) {
+			
+			printf("second move %d\n", j+1);
+			apply_move(&b, omoves[j]);
+			printb(&b);
+			printf("eval = %d\n", eval(&b));
+			undo_move(&b, omoves[j]);
+			
+		}
+		free(omoves);
+		
+		undo_move(&b, moves[i]);
+	}
+	free(moves);
+	
+	return status;
+}
+
 int main(int argc, const char * argv[]) {
 	
 	get_ready();
-	
+	/*
 	stupid_tests();
 	printf("[tests.main]\tsanity check: sizeof(unsigned long) = %d\n",
 					(int) sizeof(unsigned long));
@@ -652,10 +687,14 @@ int main(int argc, const char * argv[]) {
 	if(WIN == test_apply_move())
 		printf("[tests.apply_move]\tpassed\n");
 	else printf("[tests.apply_move]\tFAILED!\n");
-	
+	*/
+	/*
 	if(WIN == test_search())
 		printf("[tests.search]\t\tpassed\n");
 	else printf("[tests.search]\t\tFAILED!\n");
+	*/
+	
+	test_scout();
 	
 	clean_up();
 	

@@ -9,12 +9,10 @@
  */
 
 unsigned char moving_type(Move m) {
-	printf("finding moving type\n");
 	return (unsigned char) (m.moving_capturing >> 4) & 15;
 }
 
 unsigned char capturing_type(Move m) {
-	printf("finding capt type\n");
 	return (unsigned char) m.moving_capturing & 15;
 }
 
@@ -32,10 +30,7 @@ void move_set(Move *move, int from, int to, int moving, int capturing) {
 
 void apply_move(Board *board, Move move) {
 	int moving, capt, playing;
-	printf("applying move\t");
-	printf(": %d\n", move);
 	playing = to_play(board);
-	printf("found to play\n");
 	moving = moving_type(move);
 	capt = capturing_type(move);
 	 
