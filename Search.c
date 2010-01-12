@@ -31,7 +31,7 @@ int scout(Board *board, int alpha, int beta, int depth) {
 		printb(board);
 		
 		/* recurse */
-		val = scout(board, alpha, beta, depth-1);
+		val = -scout(board, -beta, -alpha, depth-1);
 		
 		printf("recursed\n");
 		
