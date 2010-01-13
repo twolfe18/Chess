@@ -30,6 +30,7 @@ void move_set(Move *move, int from, int to, int moving, int capturing) {
 
 void apply_move(Board *board, Move move) {
 	int moving, capt, playing;
+
 	playing = to_play(board);
 	moving = moving_type(move);
 	capt = capturing_type(move);
@@ -57,6 +58,8 @@ void apply_move(Board *board, Move move) {
 		set_play(board, BLACK);
 	else set_play(board, WHITE);
 	
+	/* increase the ply */
+	set_ply(board, ply(board)+1);
 }
 
 void undo_move(Board *board, Move move) {
@@ -82,6 +85,8 @@ void undo_move(Board *board, Move move) {
 		set_play(board, BLACK);
 	else set_play(board, WHITE);
 	
+	/* decrease the ply */
+	set_ply(board, ply(board)-1);
 }
 
 

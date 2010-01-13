@@ -1032,6 +1032,8 @@ Move* gen_moves(Board *board, int *number) {
 		
 		from = MSB(board->rank_positions[me*7 + ALL], 64-from);
 	}
+	
+	/* printf("just generated %d moves\n", *number); */
 	return moves;
 }
 

@@ -1,5 +1,5 @@
 
-#define MAX_MOVES 80
+#define MAX_MOVES 180
 
 #define WHITE	0
 #define BLACK	1

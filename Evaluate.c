@@ -13,10 +13,6 @@ int eval(Board *board) {
 	unsigned long mask;
 	int val, pos;
 	
-	/* i am going to make this value from
-	 * WHITE's perspective
-	 */
-	
 	val = 0;
 	mask = board->rank_positions[WHITE*7+ALL] | board->rank_positions[BLACK*7+ALL];
 	pos = MSB(mask, 0);
@@ -68,6 +64,11 @@ int eval(Board *board) {
 		pos = MSB(mask, 64-pos);
 	}
 	
-	return val;
+	/* alpha beta may take care of this for me,
+	 * check later
+	 */
+	if(to_play(board) == WHITE)
+		return val;
+	else return -val;
 }
 

@@ -591,8 +591,8 @@ int test_search() {
 	status = WIN;
 
 	setup(&b);
-	depth = 2;
-	val = scout(&b, -10000, 10000, depth);
+	depth = 4;
+	val = scout(&b, -20000, 20000, depth);
 	printf("negascout after depth %d came out as %d\n", depth, val);
 	
 	return WIN;
@@ -688,13 +688,12 @@ int main(int argc, const char * argv[]) {
 		printf("[tests.apply_move]\tpassed\n");
 	else printf("[tests.apply_move]\tFAILED!\n");
 	*/
-	/*
+	
 	if(WIN == test_search())
 		printf("[tests.search]\t\tpassed\n");
 	else printf("[tests.search]\t\tFAILED!\n");
-	*/
 	
-	test_scout();
+	/* test_scout(); */
 	
 	clean_up();
 	
